@@ -93,6 +93,6 @@ Security analysts must understand how trust is established on the web to identif
 ---
 
 ## 🔗 Associated Tools
-* [Splunk](../TOOLS/splunk.md) - Industry-leading SIEM and data analytics.
-* [Snort](../TOOLS/snort.md) - Network Intrusion Detection System (NIDS).
-* [Wireshark](../TOOLS/wireshark.md) - Deep packet analysis.
+* [Splunk](../../TOOLS/splunk.md) - Industry-leading SIEM and data analytics.
+* [Snort](../../TOOLS/snort.md) - Network Intrusion Detection System (NIDS).
+* [Wireshark](../../TOOLS/wireshark.md) - Deep packet analysis.
