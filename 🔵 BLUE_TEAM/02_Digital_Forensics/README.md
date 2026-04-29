@@ -52,6 +52,6 @@ While highly powerful, analysts must understand the operational limits of **Wire
 ---
 
 ## 🔗 Associated Tools
-* [Volatility](../TOOLS/volatility.md) - Advanced memory forensics.
-* [Wireshark](../TOOLS/wireshark.md) - Network protocol analysis.
+* [Volatility](../../TOOLS/volatility.md) - Advanced memory forensics.
+* [Wireshark](../../TOOLS/wireshark.md) - Network protocol analysis.
 * [Autopsy] - GUI-based disk forensics.
