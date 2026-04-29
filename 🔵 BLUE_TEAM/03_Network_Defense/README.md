@@ -66,6 +66,6 @@ It is critical to distinguish between **Passive Analysis** and **Active Defense*
 ---
 
 ## 🔗 Associated Tools
-* [TCPdump](../TOOLS/tcpdump.md) - CLI Packet Sniffer.
-* [Snort](../TOOLS/snort.md) - Network IDS/IPS.
-* [Wireshark](../TOOLS/wireshark.md) - Protocol Analyzer.
+* [TCPdump](../../TOOLS/tcpdump.md) - CLI Packet Sniffer.
+* [Snort](../../TOOLS/snort.md) - Network IDS/IPS.
+* [Wireshark](../../TOOLS/wireshark.md) - Protocol Analyzer.
