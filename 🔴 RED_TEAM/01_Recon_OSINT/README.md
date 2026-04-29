@@ -44,6 +44,13 @@ Harnessing search engine power to find sensitive data or misconfigured servers.
 
 ---
 
+## 🗃️ Vulnerability Databases
+Before an attack, research known weaknesses using professional archives:
+* **CVE (Common Vulnerabilities and Exposures)**: The standard list of publicly disclosed cybersecurity vulnerabilities. Format: `CVE-YYYY-ID`.
+* **Exploit-DB**: A massive archive of public exploits and shellcode maintained by *Offensive Security*. Crucial for finding PoCs (Proof of Concepts).
+
+--- 
+
 ## 🔗 Associated Tools
 * [DIRB](../TOOLS/dirb.md) - Web Content Discovery.
 * [Whois] - Domain registration data.
