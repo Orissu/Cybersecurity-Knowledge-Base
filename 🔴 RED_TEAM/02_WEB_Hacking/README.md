@@ -43,6 +43,6 @@ Automating the detection and exploitation of database vulnerabilities.
 ---
 
 ## 🔗 Associated Tools
-* [Burp Suite](../TOOLS/burpsuite.md) - The "Swiss Army Knife" of web hacking.
-* [Hydra](../TOOLS/hydra.md) - High-speed login cracker.
-* [Sqlmap](../TOOLS/sqlmap.md) - SQL injection automation.
+* [Burp Suite](../../TOOLS/burpsuite.md) - The "Swiss Army Knife" of web hacking.
+* [Hydra](../../TOOLS/hydra.md) - High-speed login cracker.
+* [Sqlmap](../../TOOLS/sqlmap.md) - SQL injection automation.
