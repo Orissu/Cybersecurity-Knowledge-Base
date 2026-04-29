@@ -52,6 +52,6 @@ Before an attack, research known weaknesses using professional archives:
 --- 
 
 ## 🔗 Associated Tools
-* [DIRB](../TOOLS/dirb.md) - Web Content Discovery.
+* [DIRB](../../TOOLS/dirb.md) - Web Content Discovery.
 * [Whois] - Domain registration data.
 * [DNSRecon] - DNS enumeration.
