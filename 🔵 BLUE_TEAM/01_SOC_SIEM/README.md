@@ -26,6 +26,29 @@ The primary mission of a SOC Analyst during triage is to filter the "noise":
 * **False Positive (FP)**: A benign activity incorrectly flagged as a threat (requires rule tuning).
 * **True Negative (TN)**: Normal activity that is correctly ignored.
 * **False Negative (FN)**: A real attack that bypasses detection (the most dangerous scenario).
+* **Alert Fatigue**: A state where analysts are overwhelmed by too many FPs, leading to missed TPs.
+
+---
+
+## 🏛️ The Three Pillars of SOC Maturity
+
+For a defensive environment to be effective, these three elements must be balanced:
+1.  **People**: Skilled analysts (L1-L3) and engineers.
+2.  **Process**: Standard Operating Procedures (SOPs) and Incident Response playbooks.
+3.  **Technology**: SIEM, EDR, IDS, and automated SOAR platforms.
+
+---
+
+## 👥 SOC Role Hierarchy & Personnel
+
+The SOC operates through a tiered structure to ensure efficient alert handling:
+
+| Tier | Role | Primary Responsibility |
+| :--- | :--- | :--- |
+| **L1** | **Triage Analyst** | Initial monitoring, filtering false positives, and basic ticket creation. |
+| **L2** | **Incident Responder** | Deep-dive investigation of validated alerts, containment, and forensics. |
+| **L3** | **Threat Hunter** | Proactive search for undetected threats and advanced malware analysis. |
+| **Eng** | **Detection Engineer** | Managing the SIEM stack and writing detection logic/YARA/Sigma rules. |
 
 ---
 
@@ -55,6 +78,17 @@ Defenders use this to measure the effectiveness of their **Threat Intelligence**
 * *Easy to change:* Hash values, IP addresses.
 * *Challenging:* Domain names, Network/Host artifacts.
 * *Tough for the Attacker:* **TTPs (Tactics, Techniques, and Procedures)**. If you detect TTPs, you force the attacker to reinvent their entire methodology.
+
+---
+
+## 🔐 Infrastructure Trust: The Digital Chain of Trust
+
+Security analysts must understand how trust is established on the web to identify certificate-based attacks.
+
+* **Root CAs**: The ultimate "Trusted Sources" (e.g., DigiCert, Let's Encrypt). Their public keys are pre-installed in your OS/Browser.
+* **Intermediate CAs**: Entities authorized by Root CAs to sign certificates on their behalf (improves security by keeping Root keys offline).
+* **End-Entity Certificate**: The final certificate assigned to a website or server.
+* **Validation**: If any link in this chain is broken or signed by an unknown entity, the "Chain of Trust" is invalid (warning the user of a potential MitM).
 
 ---
 
