@@ -33,5 +33,5 @@ When exploiting service vulnerabilities at the memory level, precision is requir
 ---
 
 ## 🔗 Associated Tools
-* [Metasploit & msfvenom](../TOOLS/metasploit.md) - The primary framework for Windows exploitation.
+* [Metasploit & msfvenom](../../TOOLS/metasploit.md) - The primary framework for Windows exploitation.
 * [PowerUp] - PowerShell script for local Windows privilege escalation enumeration.
