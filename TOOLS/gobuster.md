@@ -72,6 +72,56 @@ Gobuster does not automatically "crawl" into found folders. If you find `/admin/
 ---
 
 ## 🔗 Recommended Wordlists (Kali Linux)
-*   **/usr/share/wordlists/dirb/common.txt** (Small & Fast)
-*   **/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt** (The Standard)
+*   **/usr/share/wordlists/dirb/common.txt** (Small & Fast — ~4600 entries)
+*   **/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt** (The Standard — ~220k)
 *   **/usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories.txt** (Comprehensive)
+*   **/usr/share/seclists/Discovery/Web-Content/big.txt** (Large — ~20k)
+*   **/usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt** (DNS enum)
+
+---
+
+## 💡 Expert One-Liners
+
+```bash
+# Standard directory scan with extensions
+gobuster dir -u http://target.com -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,html,bak -t 50
+
+# Subdomain enumeration
+gobuster dns -d target.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
+
+# VHost discovery
+gobuster vhost -u http://target.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+
+# With authentication cookie
+gobuster dir -u http://target.com/admin -w wordlist.txt -c "session=abc123" -x php
+
+# Ignore SSL errors + custom User-Agent
+gobuster dir -u https://target.com -w wordlist.txt -k -a "Mozilla/5.0" -t 30
+
+# Filter by response size (hide 404 custom pages)
+gobuster dir -u http://target.com -w wordlist.txt --exclude-length 1234
+```
+
+---
+
+## ⚠️ Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Too many 403s flooding output | Use `-b 403` to exclude |
+| Custom 404 pages showing as 200 | Use `--exclude-length` to filter by size |
+| Server rate-limiting (429) | Lower threads `-t 5`, add delay |
+| Missing results | Try different wordlists, add `-x` extensions |
+| HTTPS errors | Add `-k` to skip TLS verification |
+
+---
+
+## 🔗 Alternatives Comparison
+
+| Tool | Speed | Features | Best For |
+|------|-------|----------|----------|
+| Gobuster | Fast | Simple, reliable | Quick directory brute-force |
+| ffuf | Fastest | Flexible, filters, fuzzing | Advanced fuzzing (params, headers) |
+| feroxbuster | Fast | Auto-recursive, smart | Deep recursive discovery |
+| dirb | Slow | Simple | Basic scans, legacy |
+| dirsearch | Medium | Python, good defaults | Easy to use |

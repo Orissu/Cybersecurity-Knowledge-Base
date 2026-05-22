@@ -26,4 +26,38 @@ If the server returns too many false positives (e.g., custom 404 pages), use the
 
 ---
 
-**See Also:** [Gobuster](gobuster.md), [FFUF](ffuf.md) (Modern alternatives for faster multi-threaded discovery).
+---
+
+## 💡 Expert One-Liners
+
+```bash
+# Standard scan with extensions
+dirb http://target.com /usr/share/wordlists/dirb/big.txt -X .php,.txt,.bak
+
+# Authenticated scan with cookie
+dirb http://target.com -c "session=abc123"
+
+# Non-recursive fast scan
+dirb http://target.com -r
+
+# Custom User-Agent (bypass WAF)
+dirb http://target.com -a "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+
+# Ignore specific response codes
+dirb http://target.com -N 302 -N 403
+```
+
+---
+
+## ⚠️ Limitations
+
+| Issue | Details |
+|-------|---------|
+| Single-threaded | Much slower than gobuster/ffuf |
+| No subdomain mode | Use gobuster dns or amass instead |
+| No response filtering | Can't filter by size/words like ffuf |
+| Legacy tool | Still useful but prefer modern alternatives |
+
+---
+
+**See Also:** [Gobuster](gobuster.md), [ffuf] (Modern alternatives for faster multi-threaded discovery).
