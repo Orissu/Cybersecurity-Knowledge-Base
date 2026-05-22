@@ -1,98 +1,325 @@
 # 🛡️ SOC & SIEM Operations
 
-> **Overview:** Blue Teaming is the proactive and reactive defense of an organization's internal infrastructure. It relies on the synergy between the **SOC (Security Operations Center)**—the people and processes—and the **SIEM (Security Information and Event Management)**—the technology.
+> **Objective:** Monitor, detect, and respond to security incidents using centralized log analysis.
 
 ---
 
-## 🏛️ Core Pillars of Blue Teaming
+## 🏢 SOC Structure
 
-A comprehensive defensive strategy is built on five functional areas:
+### Analyst Tiers
+| Tier | Role | Responsibilities |
+|------|------|-----------------|
+| L1 | Triage Analyst | Monitor alerts, filter false positives, escalate |
+| L2 | Incident Responder | Deep investigation, containment, forensics |
+| L3 | Threat Hunter | Proactive hunting, malware analysis, rule creation |
+| Eng | Detection Engineer | SIEM management, write detection rules |
 
-1.  **Monitoring & Detection**: Continuous oversight of network traffic and system logs. The goal is to identify **anomalies** or deviations from established behavioral baselines.
-2.  **Incident Response (IR)**: The tactical "firefighting" process of containing, eradicating, and recovering from a confirmed breach.
-3.  **Threat Intelligence**: Proactive analysis of external data (IP reputations, file hashes, and **TTPs**) to anticipate emerging attack vectors.
-4.  **Vulnerability Management**: Identifying, prioritizing, and patching security weaknesses before they are exploited.
-5.  **Digital Forensics & Investigation**: The post-incident deep dive into logs, memory, and disk images to determine the *how* and *why* of an attack.
-
----
-
-## 🏢 The SOC (Security Operations Center)
-
-The SOC is a 24/7 frontline facility dedicated to real-time security posture management.
-
-### The Alert Triage Workflow
-The primary mission of a SOC Analyst during triage is to filter the "noise":
-* **True Positive (TP)**: A legitimate security incident that requires immediate action.
-* **False Positive (FP)**: A benign activity incorrectly flagged as a threat (requires rule tuning).
-* **True Negative (TN)**: Normal activity that is correctly ignored.
-* **False Negative (FN)**: A real attack that bypasses detection (the most dangerous scenario).
-* **Alert Fatigue**: A state where analysts are overwhelmed by too many FPs, leading to missed TPs.
+### Alert Classification
+| Type | Meaning | Action |
+|------|---------|--------|
+| True Positive (TP) | Real attack detected | Investigate and respond |
+| False Positive (FP) | Benign activity flagged | Tune the rule |
+| True Negative (TN) | Normal activity, not flagged | Correct behavior |
+| False Negative (FN) | Real attack missed | Most dangerous — improve detection |
 
 ---
 
-## 🏛️ The Three Pillars of SOC Maturity
+## 🛰️ SIEM Fundamentals
 
-For a defensive environment to be effective, these three elements must be balanced:
-1.  **People**: Skilled analysts (L1-L3) and engineers.
-2.  **Process**: Standard Operating Procedures (SOPs) and Incident Response playbooks.
-3.  **Technology**: SIEM, EDR, IDS, and automated SOAR platforms.
+### What a SIEM Does
+```
+1. Collect — Aggregate logs from all sources (endpoints, firewalls, servers)
+2. Normalize — Convert different log formats into unified schema
+3. Correlate — Link related events across sources and time
+4. Alert — Trigger notifications when rules match
+5. Retain — Store logs for compliance and investigation
+6. Visualize — Dashboards for real-time monitoring
+```
 
----
-
-## 👥 SOC Role Hierarchy & Personnel
-
-The SOC operates through a tiered structure to ensure efficient alert handling:
-
-| Tier | Role | Primary Responsibility |
-| :--- | :--- | :--- |
-| **L1** | **Triage Analyst** | Initial monitoring, filtering false positives, and basic ticket creation. |
-| **L2** | **Incident Responder** | Deep-dive investigation of validated alerts, containment, and forensics. |
-| **L3** | **Threat Hunter** | Proactive search for undetected threats and advanced malware analysis. |
-| **Eng** | **Detection Engineer** | Managing the SIEM stack and writing detection logic/YARA/Sigma rules. |
-
----
-
-## 🛰️ SIEM: The Defensive Radar
-
-A **SIEM** (e.g., Splunk, Sentinel, ELK) aggregates and correlates data from across the enterprise.
-
-### Key Capabilities:
-* **Data Aggregation**: Collecting logs from Firewalls, Endpoints (EDR), Servers, and Applications.
-* **Correlation**: Linking seemingly unrelated events (e.g., a failed login on a VPN followed by a PowerShell execution on a server).
-* **Retention**: Storing historical data for compliance and forensic investigations.
-* **Dashboards & Alerting**: Visualizing the threat landscape and notifying analysts of critical events.
+### Common SIEM Platforms
+| Platform | Query Language | Notes |
+|----------|---------------|-------|
+| Splunk | SPL | Industry leader, expensive |
+| Elastic/ELK | KQL / Lucene | Open-source, flexible |
+| Microsoft Sentinel | KQL | Cloud-native, Azure integration |
+| QRadar | AQL | IBM, enterprise-focused |
+| Wazuh | Custom | Open-source HIDS + SIEM |
 
 ---
 
-## 📈 Operational Frameworks (Expert Context)
+## 📊 Splunk (SPL) Quick Reference
 
-### NIST Incident Response Life Cycle
-To handle an incident professionally, the SOC follows these four phases:
-1.  **Preparation**: Hardening systems and establishing IR procedures.
-2.  **Detection & Analysis**: Using the SIEM to identify and validate the breach.
-3.  **Containment, Eradication, & Recovery**: Neutralizing the threat and restoring services.
-4.  **Post-Incident Activity**: "Lessons Learned" to improve future defenses.
+### Basic Searches
+```spl
+# Search for failed logins
+index=windows EventCode=4625
 
-### The Pyramid of Pain
-Defenders use this to measure the effectiveness of their **Threat Intelligence**:
-* *Easy to change:* Hash values, IP addresses.
-* *Challenging:* Domain names, Network/Host artifacts.
-* *Tough for the Attacker:* **TTPs (Tactics, Techniques, and Procedures)**. If you detect TTPs, you force the attacker to reinvent their entire methodology.
+# Search by source IP
+index=firewall src_ip="10.10.10.5"
+
+# Search for PowerShell execution
+index=windows EventCode=4104 ScriptBlockText="*Invoke-Mimikatz*"
+
+# Time-based search
+index=windows earliest=-24h latest=now EventCode=4625
+```
+
+### Filtering & Statistics
+```spl
+# Count events by source
+index=windows EventCode=4625 | stats count by src_ip | sort -count
+
+# Top 10 failed login sources
+index=windows EventCode=4625 | top 10 src_ip
+
+# Timeline of events
+index=windows EventCode=4625 | timechart count by src_ip
+
+# Filter specific fields
+index=windows EventCode=4624 LogonType=10 | table _time, user, src_ip
+```
+
+### Correlation Examples
+```spl
+# Brute-force detection (>5 failures then success from same IP)
+index=windows (EventCode=4625 OR EventCode=4624)
+| stats count(eval(EventCode=4625)) as failures, count(eval(EventCode=4624)) as successes by src_ip
+| where failures > 5 AND successes > 0
+
+# Lateral movement (new logon from internal IP)
+index=windows EventCode=4624 LogonType=3 NOT src_ip="127.0.0.1"
+| stats count by src_ip, dest, user | where count < 3
+
+# Data exfiltration (large outbound transfers)
+index=firewall action=allowed bytes_out > 10000000
+| stats sum(bytes_out) as total_bytes by src_ip, dest_ip
+| where total_bytes > 100000000
+```
 
 ---
 
-## 🔐 Infrastructure Trust: The Digital Chain of Trust
+## 📊 Elastic / KQL Quick Reference
 
-Security analysts must understand how trust is established on the web to identify certificate-based attacks.
+```kql
+# Failed logins
+event.code: "4625" and winlog.event_data.TargetUserName: "admin"
 
-* **Root CAs**: The ultimate "Trusted Sources" (e.g., DigiCert, Let's Encrypt). Their public keys are pre-installed in your OS/Browser.
-* **Intermediate CAs**: Entities authorized by Root CAs to sign certificates on their behalf (improves security by keeping Root keys offline).
-* **End-Entity Certificate**: The final certificate assigned to a website or server.
-* **Validation**: If any link in this chain is broken or signed by an unknown entity, the "Chain of Trust" is invalid (warning the user of a potential MitM).
+# PowerShell suspicious commands
+event.code: "4104" and winlog.event_data.ScriptBlockText: *downloadstring*
+
+# Process creation with command line
+event.code: "1" and process.command_line: *mimikatz*
+
+# Network connections to unusual ports
+destination.port > 1024 and not destination.port: (8080 or 8443 or 3389)
+```
+
+---
+
+## 📝 Key Windows Event IDs
+
+### Authentication
+| Event ID | Description | Relevance |
+|----------|-------------|-----------|
+| 4624 | Successful logon | Track who logged in |
+| 4625 | Failed logon | Brute-force detection |
+| 4634 | Logoff | Session tracking |
+| 4648 | Logon with explicit credentials | Lateral movement |
+| 4672 | Special privileges assigned | Admin logon |
+| 4720 | User account created | Persistence |
+| 4732 | Member added to security group | Privilege escalation |
+
+### Logon Types
+| Type | Description | Suspicious When |
+|------|-------------|----------------|
+| 2 | Interactive (console) | Unusual hours |
+| 3 | Network (SMB, WinRM) | From unexpected source |
+| 4 | Batch | Unusual scheduled tasks |
+| 7 | Unlock | After hours |
+| 10 | RemoteInteractive (RDP) | From external IP |
+
+### Process & Service
+| Event ID | Description | Relevance |
+|----------|-------------|-----------|
+| 4688 | Process creation | Track execution |
+| 4689 | Process exit | Correlate with creation |
+| 7045 | Service installed | Persistence (PsExec) |
+| 1102 | Audit log cleared | Anti-forensics |
+
+### Sysmon (Enhanced Logging)
+| Event ID | Description | Relevance |
+|----------|-------------|-----------|
+| 1 | Process creation (with hash + cmdline) | Malware execution |
+| 3 | Network connection | C2 callbacks |
+| 7 | Image loaded (DLL) | DLL injection |
+| 8 | CreateRemoteThread | Process injection |
+| 10 | Process access | Mimikatz (LSASS access) |
+| 11 | File created | Malware drops |
+| 13 | Registry value set | Persistence |
+| 22 | DNS query | C2 domain resolution |
+
+---
+
+## 📜 Sigma Rules
+
+### What is Sigma?
+Generic signature format for SIEM detection rules. Write once, convert to any SIEM.
+
+### Sigma Rule Structure
+```yaml
+title: Mimikatz Usage Detected
+status: experimental
+description: Detects Mimikatz execution via process creation
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\mimikatz.exe'
+        CommandLine|contains:
+            - 'sekurlsa'
+            - 'lsadump'
+            - 'privilege::debug'
+    condition: selection
+level: critical
+tags:
+    - attack.credential_access
+    - attack.t1003
+```
+
+### Converting Sigma Rules
+```bash
+# Install sigmac / sigma-cli
+pip install sigma-cli
+
+# Convert to Splunk
+sigma convert -t splunk -p sysmon rule.yml
+
+# Convert to Elastic
+sigma convert -t elasticsearch rule.yml
+
+# Convert to QRadar
+sigma convert -t qradar rule.yml
+```
+
+### Useful Sigma Rule Categories
+| Category | Detects |
+|----------|---------|
+| Credential Access | Mimikatz, LSASS dump, SAM access |
+| Lateral Movement | PsExec, WMI, WinRM from unusual sources |
+| Persistence | New services, scheduled tasks, registry Run keys |
+| Defense Evasion | Log clearing, AMSI bypass, timestomping |
+| Exfiltration | Large DNS queries, unusual outbound traffic |
+
+---
+
+## 🔔 YARA Rules
+
+### What is YARA?
+Pattern matching tool for identifying malware in files and memory.
+
+### YARA Rule Structure
+```yara
+rule Detect_Mimikatz {
+    meta:
+        description = "Detects Mimikatz binary"
+        author = "Analyst"
+        date = "2024-01-01"
+    
+    strings:
+        $s1 = "mimikatz" ascii wide nocase
+        $s2 = "sekurlsa::logonpasswords" ascii
+        $s3 = "lsadump::dcsync" ascii
+        $hex = { 4D 5A 90 00 }  // MZ header
+    
+    condition:
+        $hex at 0 and (any of ($s*))
+}
+```
+
+### Using YARA
+```bash
+# Scan a file
+yara rule.yar suspicious_file.exe
+
+# Scan a directory recursively
+yara -r rule.yar /path/to/scan/
+
+# Scan running processes
+yara -p rule.yar
+
+# Multiple rules
+yara rules_directory/ target_file
+```
+
+---
+
+## 🚨 Incident Response Framework (NIST)
+
+```
+1. Preparation
+   - IR plan, playbooks, tools ready
+   - Logging configured, baselines established
+
+2. Detection & Analysis
+   - Alert triage (TP vs FP)
+   - Scope assessment (how far did attacker get?)
+   - IOC identification
+
+3. Containment, Eradication, Recovery
+   - Short-term: Isolate affected systems
+   - Long-term: Patch vulnerability, reset credentials
+   - Eradicate: Remove malware, backdoors
+   - Recover: Restore from clean backups
+
+4. Post-Incident Activity
+   - Lessons learned
+   - Update detection rules
+   - Improve procedures
+```
+
+### IR Quick Actions
+```bash
+# Isolate host (Windows)
+netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound
+
+# Collect volatile data before shutdown
+# Memory dump → processes → network connections → logged users
+
+# Preserve evidence
+# Image disk before remediation
+# Export relevant logs
+# Screenshot active sessions
+```
+
+---
+
+## 📈 Key Frameworks
+
+### Pyramid of Pain
+```
+(Hardest to change — most impactful detection)
+    TTPs (Tactics, Techniques, Procedures)
+    Tools
+    Network/Host Artifacts
+    Domain Names
+    IP Addresses
+    Hash Values
+(Easiest to change — least impactful detection)
+```
+
+### MITRE ATT&CK (map attacks to techniques)
+```
+Reconnaissance → Resource Development → Initial Access →
+Execution → Persistence → Privilege Escalation →
+Defense Evasion → Credential Access → Discovery →
+Lateral Movement → Collection → C2 → Exfiltration → Impact
+```
 
 ---
 
 ## 🔗 Associated Tools
-* [Splunk](../../TOOLS/splunk.md) - Industry-leading SIEM and data analytics.
-* [Snort](../../TOOLS/snort.md) - Network Intrusion Detection System (NIDS).
-* [Wireshark](../../TOOLS/wireshark.md) - Deep packet analysis.
+- [Splunk](../../TOOLS/splunk.md) - SIEM platform
+- [Snort](../../TOOLS/snort.md) - Network IDS
+- [Volatility](../../TOOLS/volatility.md) - Memory forensics

