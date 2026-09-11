@@ -86,7 +86,7 @@ systemctl list-unit-files --state=enabled  # All enabled services
 
 ### Process Management
 ```bash
-ps aux                       # All processes
+ps aux                       # All processes from all users, switched to user-oriented format and includes process not attached to terminal
 ps aux | grep apache         # Find specific process
 top / htop                   # Real-time monitoring
 kill PID                     # Graceful stop (SIGTERM)
@@ -124,7 +124,7 @@ nslookup domain.com          # DNS lookup (simpler)
 host domain.com              # DNS lookup (simplest)
 curl -I http://target        # HTTP headers
 wget http://target/file      # Download file
-ss -tulnp                    # Open ports and listeners
+ss -tulnp                    # Lists Open ports and listeners (TCP, UDP, listening sockets, don't resolve service names, processes)
 netstat -tulnp               # Same (older systems)
 arp -a                       # ARP table
 ```
