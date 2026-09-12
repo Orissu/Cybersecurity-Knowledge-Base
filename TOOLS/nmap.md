@@ -158,7 +158,7 @@ nmap --script ssl-heartbleed,ssl-poodle,ssl-enum-ciphers -p 443 <target>
 
 | Flag | Format | Use Case |
 |------|--------|----------|
-| `-oN file.txt` | Normal | Human-readable |
+| `-oN file.txt` | Normal | Saves the output to a file, human-readable |
 | `-oG file.txt` | Grepable | Easy to parse with grep/awk |
 | `-oX file.xml` | XML | Import into other tools |
 | `-oA basename` | All formats | Creates .nmap, .gnmap, .xml |
