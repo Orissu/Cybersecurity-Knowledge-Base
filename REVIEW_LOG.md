@@ -21,6 +21,7 @@
 |---|---|---|---|---|
 | Linux sys admin | — | 10/09 | 13/09 | to be reviewed |
 | Nmap | — | 11/09 | 14/09 | to be reviewed |
+| Metasploit | — | 12/09 | 15/09 | to be reviewed |
 
 ---
 
