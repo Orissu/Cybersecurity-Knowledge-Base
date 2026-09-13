@@ -48,6 +48,7 @@ check                         # Test if target is vulnerable (non-destructive)
 exploit / run                 # Launch the exploit
 exploit -j                    # Run as background job
 sessions                      # List active sessions
+sessions -u 1                 #Tries to upgrade the session to a meterpreter one
 sessions -i <id>              # Interact with session
 ```
 
