@@ -29,3 +29,10 @@ results/
 *.bak
 *.tmp
 *~
+
+# --- Fichiers privés (ne jamais pousser sur GitHub) ---
+# Planning personnel et suivi d'alternance — contiennent des infos perso
+WEEKLY_PLAN.md
+ALTERNANCE_ACTION_PLAN.md
+CERTIFICATIONS/ALTERNANCE_ROADMAP.md
+REVIEW_LOG.md
