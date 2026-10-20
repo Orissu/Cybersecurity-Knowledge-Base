@@ -245,7 +245,15 @@ done < targets.txt
 | Capabilities (getcap) | Privilege escalation |
 | /tmp and /dev/shm | World-writable, good for tools |
 
----
+
+--
+
+**gap list**
+
+- how to kill a process
+- how to find all SUID binaries
+
+--
 
 ## 🔗 Associated Tools
 - [LinPEAS](../../TOOLS/LinPEAS.md) - Automated enumeration
