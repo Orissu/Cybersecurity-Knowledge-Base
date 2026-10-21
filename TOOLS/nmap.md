@@ -58,6 +58,7 @@
 | `-p-` | All 65535 ports |
 | `--top-ports 100` | Top 100 most common ports |
 | `-p U:53,T:80` | Specific protocol ports |
+| `--open` | open ports only |
 
 ---
 
