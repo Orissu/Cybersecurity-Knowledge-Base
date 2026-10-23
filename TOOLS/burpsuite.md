@@ -234,6 +234,12 @@ url=http://BURP-COLLABORATOR-SUBDOMAIN
 
 ---
 
+## Gap List
+
+- reverse shells in bash and how to stabilize them in python
+
+---
+
 ## 🔗 Links
 
 - Combine with: Browser DevTools (for JS analysis), ffuf (for faster fuzzing)
