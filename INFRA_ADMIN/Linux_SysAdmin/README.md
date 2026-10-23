@@ -248,12 +248,6 @@ done < targets.txt
 
 --
 
-**gap list**
-
-- how to kill a process
-- how to find all SUID binaries
-
---
 
 ## 🔗 Associated Tools
 - [LinPEAS](../../TOOLS/LinPEAS.md) - Automated enumeration
