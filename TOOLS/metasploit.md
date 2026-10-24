@@ -285,8 +285,6 @@ exploit -j    # Run in background
 ## Gap list
 
 - msfvenom to understand better
-- understanding of the tool in general
-- netcat and listeners
 
 ## 🔗 Links
 
