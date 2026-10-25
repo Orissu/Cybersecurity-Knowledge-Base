@@ -253,8 +253,7 @@ Step 6: Targeted NSE Scripts
 
 ## Gap list
 
-- Script scan and open ports only (--open)
-- Saving output zith -oN
+- Script scan
 
 ---
 
