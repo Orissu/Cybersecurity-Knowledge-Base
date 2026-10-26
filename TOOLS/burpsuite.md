@@ -232,11 +232,6 @@ url=http://BURP-COLLABORATOR-SUBDOMAIN
 | Missing requests | Check "Intercept is off" isn't filtering |
 | Can't see response body | Check Content-Type rendering |
 
----
-
-## Gap List
-
-- reverse shells in bash and how to stabilize them in python
 
 ---
 
