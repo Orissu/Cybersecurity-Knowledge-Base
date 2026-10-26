@@ -251,12 +251,6 @@ Step 6: Targeted NSE Scripts
 
 ---
 
-## Gap list
-
-- Script scan
-
----
-
 ## 🔗 Links
 
 - After Nmap → enumerate specific services (SMB, HTTP, LDAP)
