@@ -282,10 +282,6 @@ exploit -j    # Run in background
 
 ---
 
-## Gap list
-
-- msfvenom to understand better
-
 ## 🔗 Links
 
 - Before Metasploit → Nmap to identify services and versions
