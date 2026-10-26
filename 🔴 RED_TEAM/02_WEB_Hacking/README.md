@@ -46,6 +46,24 @@
 
 ---
 
+## 🗂️ OWASP Top 10 (2025) — Quick Reference
+
+> Theory from THM Cybersecurity 101 Module 14. Each category links to the relevant technical section below.
+
+| # | Category | Why it happens | Where to exploit |
+|---|---|---|---|
+| A01 | **Broken Access Control** | App doesn't properly enforce who can do what — horizontal (access other users' data) or vertical (access higher-privilege functions) | See Auth Bypass + IDOR in methodology |
+| A02 | **Security Misconfiguration** | Assets deployed with bad config — default creds, open admin panels, verbose error messages, unnecessary services | Default creds, exposed admin pages, directory listing |
+| A03 | **Software Supply Chain Failures** | App relies on components, libs or services that are outdated, compromised or improperly verified | CVE lookup on identified versions (Nmap -sV → searchsploit) |
+| A04 | **Cryptographic Failures** | Encryption used incorrectly or not at all — sensitive data exposed in transit or at rest | See `INFRA_ADMIN/Cryptography/README.md` |
+| A05 | **Injection** | App takes user input and mishandles it — passes it to an interpreter without sanitization | See SQL Injection + Command Injection sections below |
+| A06 | **Insecure Design** | Flawed logic or architecture built into the system from the start — not fixable by patching | Business logic flaws, race conditions, workflow bypass |
+| A07 | **Authentication Failures** | App can't properly verify or bind a user's identity | See Authentication Bypass section below |
+| A08 | **Software/Data Integrity Failures** | App relies on code, updates or data it assumes are safe without verifying authenticity or integrity | Tampered updates, unsigned packages, insecure deserialization |
+| A09 | **Logging & Alerting Failures** | App doesn't record or alert on security-relevant events — attackers go undetected | Blue Team concern — see `🔵 BLUE_TEAM/01_SOC_SIEM/README.md` |
+
+---
+
 ## 💉 SQL Injection (SQLi)
 
 ### Detection
