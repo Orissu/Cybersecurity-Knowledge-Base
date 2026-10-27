@@ -1,10 +1,7 @@
 # Passive Reconnaissance
 
----
 
 ## Purpose
-
----
 
 Passive reconnaissance consists to gather information without contacting the target using only public sources.
 It is one of the most powerful and lowest-risk phase in pentesting, bug bounty and threat hunting.
@@ -16,8 +13,6 @@ The purpose of the defender is to understand what is there to know about them fr
 ---
 
 ## WHOIS
-
----
 
 WHOIS is a query/response protocol (RFC3912).
 WHOIS servers listen on TCP port 43 qnd provide registration details for domain names.
@@ -38,6 +33,35 @@ RDAP uses HTTPs, returns structured JSON, supports internationlaisation, provide
 
   ## NSLookup and Dig
 
-  ---
+Both tools are used to query DNS records. It translates domain names into IP address, it finds mail servers...
+Dig is the modern version of Name Server Lookup. It has a cleaner output, it sends TTL values and it is more reliable.
 
-  
+To use NSLookup we can use the command `nslookup -type=TYPE DOMAIN_NAME [SERVER]`
+Where the parameter -type defines the record type and the parameter [SERVER] is optionnal and is used to define the resolver we want to use.
+
+To use dig we can use : `dig [@SERVER] DOMAIN_NAME [TYPE]`
+
+| RECORD TYPE | Result |
+|---|---|
+| A | IPv4 |
+| AAA | IPv6 |
+| CNAME | Canonical Name : an alias that points one Domain Name to another |
+| MX | Mail Servers |
+| SOA | Start Of Authority, primary name server, admin email, zone Serial Number |
+| TXT | Text Records | 
+
+tips : using public resolvers like 1.1.1.1 allows to avoid your ISP logging your queries.
+
+---
+
+## DNS Dumpster
+
+Dig and NSlookup only reveal names that we know. It doesn't show the subdomains.
+Subdomains are important because they often expose forgotten or vulnerable services.
+DNS Dumpster aggregates public DNS Data from lots of sources and remains passive.
+The results include subdomins and hosts, resolved IPs with geolocation, MX, TXT and CNAME records and visual maps showing the relationship between these.
+
+The most effective passive subdomain discovery method is certificate transparency logs, accessible through crt.sh
+Certificate transparency is a public logging framewrk that records every TLS/SSL certificates issued by a trusted authority.
+It has a field named Subject Alternative Name (SAN) that lists everything.
+
