@@ -101,4 +101,4 @@ We can also use openssl : `s_client_connect @IP:443`
 
 ## Netcat
 
-[see the netcat sheet](../../../TOOLS/Netcat.md)
+[see the netcat sheet](../../../TOOLS/netcat.md)
