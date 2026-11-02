@@ -4,6 +4,32 @@
 > **When to Use:** First tool in ANY engagement. Maps the attack surface before exploitation.
 
 ---
+## About Nmap
+
+Nmap uses protocols in order to scan the network, the machines and the ports. If no option has been given, nmap follows this pattern :
+1) If the scan is on the same local network, nmap uses ARP if it's a priviledged user;
+2) If the scan is outside the local network, nmap uses ICMP echo requests, TCP ACK port 80, TCP SYN port 443 and ICMP timestamp requests.
+3) If the one using nmap is a regular user and outside the local network, nmap uses a TCP 3-way handshake (SYN to port 80 and port 443).
+By default, nmap does a PING to discover live hosts and then scans live hosts only.
+Only online hosts answer to a ARP scan.
+Sometimes, firewalls block ICMP echo requests (-PE) or ICMP echo replies (type 8 and type 0) so we can use ICMP timestamp requests (-PP) or ICMP adress masks requests (-PM).
+ICMP timestamp requests and replies are type 13 and 14 and ICMP address Mask requests and replies are type 17 and 18.
+
+---
+## About ports
+
+Each service is linked to a TCP port, there are 65536 ports in total.
+An open port means that there is a service listening on that port. A closed port doesn't have a service listening to it.
+Because of firewalls, a port may seem closed even though there's a service listening on it.
+There are 6 states of ports : 
+- open
+- closed
+- filtered : A firewall, filter, or network obstacle blocks the probe, so Nmap cannot tell if the port is open or closed.
+- unfiltered : The port is reachable, but Nmap cannot determine whether it is open or closed (typically seen only in ACK scan packets).
+- open | filtered :  Nmap cannot decide whether the port is open or filtered (such as in UDP, IP proto, FIN, Null, or Xmas scans).
+- closed | filtered : Nmap cannot decide whether the port is closed or filtered (used only in IP ID idle scans).
+
+---
 
 ## 📋 Target Specification
 
@@ -43,6 +69,7 @@
 | `-PA <ports>` | TCP ACK ping | Alternative discovery method |
 | `-PU <ports>` | UDP ping | Discover hosts via UDP |
 | `-PE` | ICMP echo ping | Standard ping |
+| `-PR` | ARP scan | discover live hosts on the same local network |
 | `-n` | No DNS resolution | Faster scans |
 | `-R` | Always resolve DNS | Get hostnames |
 
@@ -66,11 +93,17 @@
 
 | Flag | Description | Use Case |
 |------|-------------|----------|
-| `-sV` | Service version detection | Identify software and version on open ports |
+| `-sV` | Service version detection | Identify software and version on open ports (not compatible with -sS, forces a 3-way handshake) |
 | `--version-intensity <0-9>` | Version scan intensity | Higher = more accurate but slower |
+| `-sV --version-light` | level 2 | --- |
+| `-sV --version-all` | level 9 | --- |
 | `-O` | OS detection | Identify target operating system |
+| `--traceroute` | network mapping |Find the routers between the host and the target |
 | `-A` | Aggressive scan | Combines -sV, -O, traceroute, default scripts |
 | `--osscan-guess` | Guess OS more aggressively | When OS detection is uncertain |
+
+If nmap doesn't succeed to find the OS, there's still useful clues like the TTL, TCP sequences, service responses (banners and protocol quirks).
+The absence of an exact match can be due to : Virtualization, firewall, cloud networking layers,  kernel customisation or network middleboxes that modify packet characteristics. It should be interpreted carefully as nowadays because of the new technologies altering information.
 
 ---
 
@@ -84,6 +117,7 @@
 | `-T3` | Normal | Default |
 | `-T4` | Aggressive | Fast, reliable networks |
 | `-T5` | Insane | Very fast, may miss ports |
+| `-r` | Order | To scan in consecutive order |
 | `--min-rate <n>` | Minimum packets/sec | Force speed (e.g., 5000) |
 | `--max-rate <n>` | Maximum packets/sec | Throttle to avoid detection |
 | `--max-retries <n>` | Max probe retries | Lower = faster (default 10) |
@@ -92,6 +126,8 @@
 ---
 
 ## 📜 Nmap Scripting Engine (NSE)
+
+A script is a piece of code that doesn't need to be compiled.
 
 | Flag | Description |
 |------|-------------|
@@ -153,6 +189,7 @@ nmap --script ssl-heartbleed,ssl-poodle,ssl-enum-ciphers -p 443 <target>
 | `--spoof-mac <mac>` | Spoof MAC address | Bypass MAC filtering |
 | `--badsum` | Send bad checksums | Test firewall/IDS response |
 
+to fragment packets, we use -f, it fragments the data into packets of 8 MB or lower. if we use -ff, the packets are 16MB or lower for the last one.
 ---
 
 ## 💾 Output Formats
@@ -236,6 +273,21 @@ Step 5: Vulnerability Scan
 Step 6: Targeted NSE Scripts
   Based on services found (SMB, HTTP, FTP, etc.)
 ```
+
+---
+
+## Idle/Zombie scan
+
+To use it we can use `-sI ZOMBIE TARGET`.
+The purpose of this scan is to probe a target using the IP address of a Zombie host (printer or something else...). Therefore, the target system sees each probe appearing to come from the idle/zombie host. Then we can check if the zombie host received a response by checking the IP ID in the header.
+It requires an idle system connected to the network that we can communicate with.
+
+It requires 3 steps to set up the scan : 
+-Trigger the idle host to respond to the host with the zombie's IPID
+-Send a SYN packet to the target (spoofed zombie)
+-Trigger the zombie host again to compare the new IPID
+
+--reason to add more details to reasoning and conclusions. -d for debbugging details and -dd for even more details.
 
 ---
 
