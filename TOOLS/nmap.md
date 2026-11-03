@@ -56,6 +56,25 @@ There are 6 states of ports :
 | `-sN` | NULL Scan | No flags set | Firewall evasion (RFC compliant) |
 | `-sF` | FIN Scan | FIN flag only | Firewall evasion |
 | `-sX` | Xmas Scan | FIN+PSH+URG flags | Firewall evasion |
+| `-sM` | Maimon Scan | FIN+ACK flags | detect open or closed ports (won't work in modern networks) |
+| `--scanflags` | Custom Flag Scan | Let's you choose the flag you want in the scan |
+
+The NULL Scan, FIN Scan and Xmas Scan doesn't trigger a response when they reach an open port.
+When they reach a closed port, the response is a RST,ACK.
+The Xmas Scan is efficient when scanning a target behind a stateless firewall. A Stateless firewall checks whether the incoming packet has the SYN flag set to detect a connection packet.
+
+---
+
+## Spoofing and decoys
+
+In some networks setups, it is possible to scan a target using a spoofed IP address and even a spoofed MAC address.
+It is only benefitial if it is guaranteed to have a response.
+The attacker (A) scans the target (B) using the spoofed IP address of (C). (B) then answer to (C) and (A) can have the response by monitoring (C) beforehand.
+to use it we use `-S @IP TARGET`
+IT's useless if (A) cannot monitor the network for responses. If the scan is in the same subnet then it is possible to spoof the MAC address with `--spoof-mac`
+
+To use a decay scan we use `-D` with a specific IP address or multiple ones. We can add me to indicate the position of our IP address :
+`nmap -D IP1,IP2,ME,IP3,RND,RND TARGET`. The RND means that the IP address will be at random.
 
 ---
 
