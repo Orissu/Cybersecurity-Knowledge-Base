@@ -128,6 +128,26 @@ The absence of an exact match can be due to : Virtualization, firewall, cloud ne
 ## 📜 Nmap Scripting Engine (NSE)
 
 A script is a piece of code that doesn't need to be compiled.
+For nmap, it enables adding custom functionalities that weren't available via built-in cmds. Nmap default install's contains up to 600 scripts.
+They're in the directory `/usr/share/nmap/scripts` and we can choose to use default scripts zith `--script=default or -sC`.
+There are lots of other categories.
+
+| Script Category | Description |
+|---|---|
+| `auth` | Runs authentication-related scripts |
+| `broadcast` | Discovers hosts by sending broadcast messages |
+| `brute` | Performs brute-force password auditing against logins |
+| `default` | Runs default scripts (same as `-sC`) |
+| `discovery` | Retrieves accessible information, such as database tables and DNS names |
+| `dos` | Detects servers vulnerable to Denial of Service (DoS) |
+| `exploit` | Attempts to exploit various vulnerable services |
+| `external` | Checks using a third-party service, such as Geoplugin and Virustotal |
+| `fuzzer` | Launches fuzzing attacks |
+| `intrusive` | Runs intrusive scripts such as brute-force attacks and exploitation |
+| `malware` | Scans for backdoors |
+| `safe` | Runs safe scripts that won't crash the target |
+| `version` | Retrieves service versions |
+| `vuln` | Checks for vulnerabilities or exploits in a vulnerable service |
 
 | Flag | Description |
 |------|-------------|
@@ -136,15 +156,6 @@ A script is a piece of code that doesn't need to be compiled.
 | `--script=<category>` | Run category (vuln, exploit, auth, brute, discovery) |
 | `--script-args=<args>` | Pass arguments to scripts |
 | `--script-help=<name>` | Show script documentation |
-
-### Useful Script Categories
-| Category | Purpose | Example |
-|----------|---------|---------|
-| `vuln` | Vulnerability detection | `--script vuln` |
-| `auth` | Authentication checks | `--script auth` |
-| `brute` | Brute force attacks | `--script brute` |
-| `exploit` | Active exploitation | `--script exploit` |
-| `discovery` | Service discovery | `--script discovery` |
 
 ### Must-Know Scripts
 ```bash
