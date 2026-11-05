@@ -50,15 +50,23 @@ Then we observe the results : we should look the size of the aswer and the conte
 We can download a reverse shell online using this github repository : https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php
 Then we can change the extension to the right one (.phtml) and modify the shell to have our own IP address for the netcat listener.
 Then on our terminal we set up the netcat listener : `nc -lvnp 1234` (port configure in the reverse shell)
-We can now upload the reverse shell to have access to the web server.
+We can now upload the reverse shell to have access to the web server. To have access to the shell we need to go to the reverse shell web page.
    
 ## 3. Privilege Escalation
 
    ### 3.1 Local enumeration
 
-
+Now that we have access to the shell, we can enumerate some information. with `whoami` we know that we are www-data.
+We can look for any user by doing `ls -la /home` and we find the user bill.
    
    ### 3.2 Exploiting the vector
+
+In his documents, there is the first flag named user.txt.
+We can now look for SUIDs with `find / -perm -4000 -type f 2>/dev/null`. We find the /bin/systemctl process having SUIDs. Our purpose will be to use this to elevate our shell.
+I didn't know how to exploit this so I looked it up.
+We need to create a service that can be launched by systemctl.
+First we create a temporary path for the service file : 
+   `TF=$(mktemp).service`
    
    ### 3.3 Root access
    
