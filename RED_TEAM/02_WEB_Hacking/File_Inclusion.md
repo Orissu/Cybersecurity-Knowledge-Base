@@ -1,0 +1,25 @@
+# File Inclusion
+
+File inclusion vulnerabilities let an attacker trick a web application into exposing or executing a file that was never meant to be.
+
+Why does it happen? It is because there isn't enough input validation. if the user can modify or abuse a file-handling function then an attacker can access unintended files.
+A common language to have this vulnerability would be PHP, Python or Node.js.
+
+If the attacher can include or upload a file with embedded PHP they can achieve remote code execution through Local File Inclusion (LFI).
+If the application allows including files from an external server, the attacker c  n host their own malicious file and have the server execute it. (Remote File Inclusion)
+It is usually the most critical outcome.
+
+## Path Traversal
+
+Path traversal allows the user to read files on the server outside the web application's root directory.
+
+## Local File Inclusion (LFI)
+
+If a file is passed through a language function like PHP's `include()`, it executes any code inside the file before returning the output. 
+Under the right conditions, it can lead to remote code execution rather than just information disclosure.
+There are lots of ways to prevent LFI, but there is always a way to use this vulnerability. The easiest way is to read the message errors and figure out how the `include()`has been secured.
+It is can be by securing the path or blocking certains types of character such as `../`.
+
+## Remote File Inclusion (RFI)
+
+Instead of pointing the `include()`function at a local
