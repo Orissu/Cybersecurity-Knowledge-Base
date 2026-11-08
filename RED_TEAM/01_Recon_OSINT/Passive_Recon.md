@@ -15,13 +15,13 @@ The purpose of the defender is to understand what is there to know about them fr
 ## WHOIS
 
 WHOIS is a query/response protocol (RFC3912).
-WHOIS servers listen on TCP port 43 qnd provide registration details for domain names.
+WHOIS servers listen on TCP port 43 and provide registration details for domain names.
 The one maintaining these records is called the Domain registrar.
-It gives a lot of information such as the name and the organisation but some iof it is blocked nowadays because of the GDPR.
+It gives a lot of information such as the name and the organisation but some of it is blocked nowadays because of the GDPR.
 As WHOIS is becoming obsolete, it is now replaced by the Registration Data Access Protocol (RDAP).
-RDAP uses HTTPs, returns structured JSON, supports internationlaisation, provides better privacy controls...
+RDAP uses HTTPs, returns structured JSON, supports internationalisation, provides better privacy controls...
  To use RDAP we can use the command : `curl -s https;//rdap.verisign.com/com/v1/domain/example.com | jq`
- The `| jq` option allows the output the JSON for readability. Verisign is usually used fro .com queries.
+ The `| jq` option allows the output to be JSON for readability. Verisign is usually used for .com queries.
 
  When using RDAP, we tend to look for : 
  - redirection chains
@@ -62,6 +62,6 @@ DNS Dumpster aggregates public DNS Data from lots of sources and remains passive
 The results include subdomins and hosts, resolved IPs with geolocation, MX, TXT and CNAME records and visual maps showing the relationship between these.
 
 The most effective passive subdomain discovery method is certificate transparency logs, accessible through crt.sh
-Certificate transparency is a public logging framewrk that records every TLS/SSL certificates issued by a trusted authority.
+Certificate transparency is a public logging framework that records every TLS/SSL certificates issued by a trusted authority.
 It has a field named Subject Alternative Name (SAN) that lists everything.
 
