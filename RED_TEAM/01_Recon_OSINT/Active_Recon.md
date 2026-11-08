@@ -2,10 +2,10 @@
 
 
 Active Reconnaissance is the of process of directly interacting with a target system or network to gather information about it.
-It requires tranmitting packets, making connections and probing services.
+It requires transmitting packets, making connections and probing services.
 
 Active Reconnaissance leaves traces like IDS Alerts, WAF blocks or honey pot triggers. 
-In 2026, Active Reconnaissance is at a point where it is the most riskier and detectable ever in history. Most of companies depoy lots of services in addition of traditionnal WAFs to add a layer of security.
+In 2026, Active Reconnaissance is at a point where it is the most riskier and detectable ever in history. Most of companies deploy lots of services in addition of traditionnal WAFs to add a layer of security.
 For a Red Team perspective, the role is to **blend in**.
 
 ---
@@ -67,11 +67,11 @@ It is useful for network topology, identifying where filtering or latency occurs
 As there are many routing protocols that optimize the network (OSPF, BGP, RIP...), the route taken by the packets is not fixed and may not be the same everytime.
 
 to use traceroute : `traceroute [-6] @IP` (tracert on Windows)
-Traceroute exploits the Tme To Live (TTL) field in the TCP headers. Each time a packet passes through a router, the TTL decreases from one. 
-When the TT field reaches 0, it won't keep being transferred by the router and it will die. The router then sends a Time To Live exceeded message to inform the user that the route is too long for the packets to be transferred.
+Traceroute exploits the Time To Live (TTL) field in the TCP headers. Each time a packet passes through a router, the TTL decreases from one. 
+When the TTL field reaches 0, it won't keep being transferred by the router and it will die. The router then sends a Time To Live exceeded message to inform the user that the route is too long for the packets to be transferred.
 Nowadays some routers are configured to not send those TTL exceeded messages.
 
-On Linux, traceroute sends by default UDP datagrams. TO change this we use the options `-T` for TCP and `-I` for ICMP.
+On Linux, traceroute sends by default UDP datagrams. To change this we use the options `-T` for TCP and `-I` for ICMP.
 
 Tips : use mtr (my traceroute) for real-time continuous views with trace, ping-like stats, packet loss and latency per hop.
 
@@ -81,11 +81,11 @@ Tips : use mtr (my traceroute) for real-time continuous views with trace, ping-l
 
 It is a protocol used to communicate to a remote system via a CLI.
 It can be used for Remote administration on port 23. The issue is that this protocol sends all the data in a clear Text, therefore it is really easy to get the information.
-The secure alternative to telnet would be The Secure SHell protocol (SSH).
+The secure alternative to telnet would be The Secure Shell protocol (SSH).
 
 Then why do we use this protocol?
 It operates over TCP so we can use it to connect to any TCP port and observe the server's response.
-It is called **banner banning** : the act to connect to a service and read the initial response (the banner).
+It is called **banner grabbing** : the act to connect to a service and read the initial response (the banner).
 Banners reveal the software's name and version running at that port.
 
 Nowadays, netcat and curl are preferred for banner grabbing as they more flexible.
