@@ -71,7 +71,7 @@ In some networks setups, it is possible to scan a target using a spoofed IP addr
 It is only benefitial if it is guaranteed to have a response.
 The attacker (A) scans the target (B) using the spoofed IP address of (C). (B) then answer to (C) and (A) can have the response by monitoring (C) beforehand.
 to use it we use `-S @IP TARGET`
-IT's useless if (A) cannot monitor the network for responses. If the scan is in the same subnet then it is possible to spoof the MAC address with `--spoof-mac`
+It's useless if (A) cannot monitor the network for responses. If the scan is in the same subnet then it is possible to spoof the MAC address with `--spoof-mac`
 
 To use a decay scan we use `-D` with a specific IP address or multiple ones. We can add me to indicate the position of our IP address :
 `nmap -D IP1,IP2,ME,IP3,RND,RND TARGET`. The RND means that the IP address will be at random.
@@ -119,7 +119,7 @@ To use a decay scan we use `-D` with a specific IP address or multiple ones. We 
 | `-O` | OS detection | Identify target operating system |
 | `--traceroute` | network mapping |Find the routers between the host and the target |
 | `-A` | Aggressive scan | Combines -sV, -O, traceroute, default scripts |
-| `--osscan-guess` | Guess OS more aggressively | When OS detection is uncertain |
+| `--oscan-guess` | Guess OS more aggressively | When OS detection is uncertain |
 
 If nmap doesn't succeed to find the OS, there's still useful clues like the TTL, TCP sequences, service responses (banners and protocol quirks).
 The absence of an exact match can be due to : Virtualization, firewall, cloud networking layers,  kernel customisation or network middleboxes that modify packet characteristics. It should be interpreted carefully as nowadays because of the new technologies altering information.
@@ -167,6 +167,8 @@ There are lots of other categories.
 | `safe` | Runs safe scripts that won't crash the target |
 | `version` | Retrieves service versions |
 | `vuln` | Checks for vulnerabilities or exploits in a vulnerable service |
+
+
 
 | Flag | Description |
 |------|-------------|
@@ -220,6 +222,7 @@ nmap --script ssl-heartbleed,ssl-poodle,ssl-enum-ciphers -p 443 <target>
 | `--badsum` | Send bad checksums | Test firewall/IDS response |
 
 to fragment packets, we use -f, it fragments the data into packets of 8 MB or lower. if we use -ff, the packets are 16MB or lower for the last one.
+
 ---
 
 ## 💾 Output Formats
