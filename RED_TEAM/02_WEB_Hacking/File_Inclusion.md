@@ -6,7 +6,7 @@ Why does it happen? It is because there isn't enough input validation. if the us
 A common language to have this vulnerability would be PHP, Python or Node.js.
 
 If the attacher can include or upload a file with embedded PHP they can achieve remote code execution through Local File Inclusion (LFI).
-If the application allows including files from an external server, the attacker c  n host their own malicious file and have the server execute it. (Remote File Inclusion)
+If the application allows including files from an external server, the attacker can host their own malicious file and have the server execute it. (Remote File Inclusion)
 It is usually the most critical outcome.
 
 ## Path Traversal
