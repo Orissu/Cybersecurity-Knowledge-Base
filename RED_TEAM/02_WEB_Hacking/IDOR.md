@@ -2,11 +2,11 @@
 
 Web Applications rely on identifiers to distinguish one object from another one. Each identifier contains or have a reference number or string.
 This reference is used to locate them. 
-When an application allows the user to supply that refernce and find the identifier without checking if the user is permitted to access it, it results in a **Insecure Direct Object Reference (IDOR)**.
+When an application allows the user to supply that reference and find the identifier without checking if the user is permitted to access it, it results in a **Insecure Direct Object Reference (IDOR)**.
 It is an access control vulnerability and it sits within the Broken Access Control category in OWASP 10.
 
 This vulnerability is significant because of the gap between the simplicity to exploit it and the impact it can make.
-The sumplest form of IDOR occurs when there's an Object Identifier in a URL parameter and the attacker uses it to query a back-end database without an authentication check.
+The simplest form of IDOR occurs when there's an Object Identifier in a URL parameter and the attacker uses it to query a back-end database without an authentication check.
 
 ## Finding IDORs in Encoded IDs
 
@@ -17,9 +17,9 @@ How to exploite encoded IDs :
 - We can now encode the new value
 - Final step is to substitue the re-encoded string back into the request and submit it.
 
-## Finding IDORs in hqshed IDs
+## Finding IDORs in hashed IDs
 
-If the ID is hashed, we can find the decoded data if we have the hash algorithm and the type of the data. We cna reproduce the hashing process by bruteforcing every possibility.
+If the ID is hashed, we can find the decoded data if we have the hash algorithm and the type of the data. We can reproduce the hashing process by bruteforcing every possibility.
 - first step : find the algorithm
 - second step: hash a range of likely input values
 - Third step: Compare the results with the hashed ID
