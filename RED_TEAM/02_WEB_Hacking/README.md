@@ -66,12 +66,12 @@
 
 ## Content discovery
 
-In web application security, content refers to qnything hosted on a web server. Content discovery is the process of finding content that wasn't meant to be publicly accessible or isn't linked anywhere obvious.
+In web application security, content refers to anything hosted on a web server. Content discovery is the process of finding content that wasn't meant to be publicly accessible or isn't linked anywhere obvious.
 
 There are 3 main approaches to content discovery : manual, automated and OSINT.
 
 Manual discovery - Common files : 
-   - Robots.txt : this file tells search engine crawlers which page they may index. Sensitive directories hqve to prevent them from appearing in search results. It tells web crawlers how to interact with the website.
+   - Robots.txt : this file tells search engine crawlers which page they may index. Sensitive directories have to prevent them from appearing in search results. It tells web crawlers how to interact with the website.
    - sitemap.xml : this file tells the search engines which page the owner wants listed.
 
 Manual discovery - HTTP header and framework stack : 
@@ -88,7 +88,7 @@ we certain keywords we can specify the thing we want:
 - intext: to specify that it is in the text of the website
 - cache: to look into the cache.
 
-We can also look intot the wayback machine that is an archive of internet dating back from the late 1990s. It is useful to find pages removed to get information.
+We can also look into the wayback machine that is an archive of internet dating back from the late 1990s. It is useful to find pages removed to get information.
 In Github, there may be API keys, credentials, config files or .env files that are stocked.
 With S3 Buckets, misconfigurations are common, and public buckets can expose files never meant to be seen.
 
