@@ -5,7 +5,7 @@
 
 Passive reconnaissance consists to gather information without contacting the target using only public sources.
 It is one of the most powerful and lowest-risk phase in pentesting, bug bounty and threat hunting.
-Even with strong policies and high security, we can still get useful data publicky exposed through DNS, WHOIS, certficates logs, search engines and device census platforms.
+Even with strong policies and high security, we can still get useful data publicly exposed through DNS, WHOIS, certficates logs, search engines and device census platforms.
 
 The purpose of the attacker is to gather intelligence about the target to find weaknesses and to determine the window of attack.
 The purpose of the defender is to understand what is there to know about them from public sources to help protect their system.
