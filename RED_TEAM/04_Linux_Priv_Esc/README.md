@@ -68,12 +68,15 @@ rpm -qa    # RedHat
 
 ## 🔑 Sudo Abuse
 
+The Administrator can filter the sudo to access applications depending on the user.
+
 ### Check Permissions
 ```bash
 sudo -l
 # Look for (ALL) NOPASSWD: entries
 # Look for specific binaries you can run as root
 ```
+When a binary is allowed to be executed without a password, we can look into GTFOBins to try to exploit it and have root access.
 
 ### GTFOBins Exploitation
 ```bash
@@ -99,6 +102,10 @@ sudo LD_PRELOAD=/tmp/evil.so <allowed_binary>
 ---
 
 ## 📁 SUID / SGID Binaries
+
+To exploit the SUID (Set-User IDentification) and SGID (Set-Group IDentification), there are two vectors.
+The first one is to unshadow the file `/etc/shadow` using JTR so that we can know the root's password.
+THe second vector would be to add ourselves to have root privileges.
 
 ### Find SUID Binaries
 ```bash
@@ -130,8 +137,23 @@ cp /tmp/passwd /etc/passwd
 ```
 
 ---
+## Privilege Escalation : PATH
+
+If a folder for which your user has wwrite permissions is located in the PATH variable, you could potentially hijack an application to run a script.
+PATH in linux is an environmental variable that tells the OS where to look for exectuables for any command that isn't built into the shell or that is not defined with an absolute path. Linux will start searching in folders defined in $PATH.
+This method depends entirely on the existing configuration of the target system.
+To try to exploit this, we need to answer those questions:
+- what folders are located under $PATH?
+- does your current user have write privileges for any of those folders?
+- Is $PATH modifiable?
+- Is there a script or application you can start that will be affected by this vulnerability?
 
 ## ⏰ Cron Jobs
+
+Cron Jobs are used to run scripts or binaries at specific times. By default, the cron job run with the user's privileges.
+The idea is to look for a scheduled task that runs without root privileges and then cahnge the script that will be run. The script we want to run will now have root privileges.
+
+Cron Jobs are stored as crontabs to see the next and date the task will run. Any user can look into it using `cat /etc/crontab`.
 
 ### Find Cron Jobs
 ```bash
@@ -196,6 +218,11 @@ tar xzf /tmp/shadow.tar.gz
 
 ## 🌐 NFS Shares
 
+The Network File Sharing (NFS) configuration is kept in `/etc/exports`. It is created during the NFS server installation and can usually be read by users.
+The critical element for the privilege escalation vector is the "no_root_squash" option.
+By default, NFS changes the root user to nfsnobody and strips any file from operating with root privileges.
+If the "no_root_squash" option is present on a writable share, we can create an executable with the SUID bit set and run it on the target system.
+
 ### Check for no_root_squash
 ```bash
 # On target
@@ -252,6 +279,21 @@ chroot /tmp/host bash
 ---
 
 ## 🔧 Kernel Exploits (Last Resort)
+
+The kernel on linux manages the communications between components and applications.
+It requires the kernel to hqve specific privileges.
+
+Methodology:
+1. Identify thekernel version
+2. Search and find an exploit for the kernel version
+3. run the exploit.
+
+⚠️ If the exploit fails, it can lead to a system crash and repercussions on the system permanently.
+
+A good website to search for CVEs is cvedetails.com. We can also use a script like Linux Exploit Suggester (possibility of generating false positives and false negatives).
+It is important to understand how the code works before launching it. The best way to do this is to read the comments and the instructions.
+We can find exploits using searchsploit : `searchsploit -m EXPLOIT`
+
 
 ### Identify Kernel Version
 ```bash
