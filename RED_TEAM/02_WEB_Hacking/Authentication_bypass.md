@@ -1,7 +1,7 @@
 # Authentication Bypass
 
 To find Authentication vulnerabilities, we can use the error messages that websites return to get information about how the system works.
-When filling a form of a new user, we can list which login already exits. It gives us information about the users.
+When filling a form of a new user, we can list which login already exists. It gives us information about the users.
 
 The fuff tool allows to check for already existing logins by using a wordlist of commonly used usernames.
 
