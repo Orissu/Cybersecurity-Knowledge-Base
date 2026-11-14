@@ -11,7 +11,7 @@ The simplest form of IDOR occurs when there's an Object Identifier in a URL para
 ## Finding IDORs in Encoded IDs
 
 Developers usually encode identifiers before including them in query strings. The most common encoding scheme is the base64.
-How to exploite encoded IDs : 
+How to exploit encoded IDs : 
 - First we need to decode the value from the request
 - We can modify the decoded output to reference a different object
 - We can now encode the new value
