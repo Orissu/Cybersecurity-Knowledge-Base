@@ -34,7 +34,7 @@ There are lots of web extensions that can be used to get information :
 
 | Name of the extension | purpose |
 | --- | --- |
-| FoxyProxy | used to switch between proxys such as Burpsuite, ZAP, SOCKS5...) |
+| FoxyProxy | used to switch between proxys such as Burpsuite, ZAP, SOCKS5... |
 | User-Agent Switcher and Manager | Changes the user Agent string to emulate different browsers, OS or devices. |
 | Wappalyzer | it automatically identifies the technologies used such as CMS platforms, web servers, Js frameworks... |
 
