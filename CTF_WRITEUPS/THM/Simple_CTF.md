@@ -48,18 +48,34 @@ We can now execute the code with : `python3 /root/46635.py -u http://@IP:80/simp
 This command gives us the salt of the password hash, the username, the email, the hashed password and the cracked password.
    
    ### 2.3 Getting a shell
+
+To have a sheel, we now can log into the target system with the SSH open port: `ssh user@IP -p 2222`.
+We can use the credentials we found.
    
 ## 3. Privilege Escalation
 
    ### 3.1 Local enumeration
+
+Now that we are connected we can look for the first flag. We can find it in the home repository using `ls -la`.
+We can explore the `/home` of other users using `ls -la /home`.
+By using `sudo -l`, we find that the vim service can be used by our session with sudo without any password.
    
    ### 3.2 Exploiting the vector
+
+The goal is to use vim to get a root shell. To do this we can use this command: `sudo vim -c ':!/bin/bash'`.
    
    ### 3.3 Root access
-   
+
+This command gives us a root shell with root privileges. With that we can find the flag in /root/root.txt.
 
 ## 4. Dead Ends and Difficulties (optional)
 
+Finding the CVE and setting up the exploit.
+
 ## 5. Remediation
 
+Research on how to do it.
+
 ## 6. Lessons Learned
+
+Searchsploit.
