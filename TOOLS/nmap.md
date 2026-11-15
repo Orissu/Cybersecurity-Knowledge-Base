@@ -18,7 +18,7 @@ ICMP timestamp requests and replies are type 13 and 14 and ICMP address Mask req
 ---
 ## About ports
 
-Each service is linked to a TCP port, there are 65536 ports in total.
+Each service is linked to a TCP port, there are 65535 ports in total.
 An open port means that there is a service listening on that port. A closed port doesn't have a service listening to it.
 Because of firewalls, a port may seem closed even though there's a service listening on it.
 There are 6 states of ports : 
