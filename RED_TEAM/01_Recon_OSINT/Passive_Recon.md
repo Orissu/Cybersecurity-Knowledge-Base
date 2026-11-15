@@ -59,7 +59,7 @@ tips : using public resolvers like 1.1.1.1 allows to avoid your ISP logging your
 Dig and NSlookup only reveal names that we know. It doesn't show the subdomains.
 Subdomains are important because they often expose forgotten or vulnerable services.
 DNS Dumpster aggregates public DNS Data from lots of sources and remains passive.
-The results include subdomins and hosts, resolved IPs with geolocation, MX, TXT and CNAME records and visual maps showing the relationship between these.
+The results include subdomains and hosts, resolved IPs with geolocation, MX, TXT and CNAME records and visual maps showing the relationship between these.
 
 The most effective passive subdomain discovery method is certificate transparency logs, accessible through crt.sh
 Certificate transparency is a public logging framework that records every TLS/SSL certificates issued by a trusted authority.
