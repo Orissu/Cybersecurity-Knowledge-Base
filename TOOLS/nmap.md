@@ -73,7 +73,7 @@ The attacker (A) scans the target (B) using the spoofed IP address of (C). (B) t
 to use it we use `-S @IP TARGET`
 It's useless if (A) cannot monitor the network for responses. If the scan is in the same subnet then it is possible to spoof the MAC address with `--spoof-mac`
 
-To use a decay scan we use `-D` with a specific IP address or multiple ones. We can add me to indicate the position of our IP address :
+To use a decay scan we use `-D` with a specific IP address or multiple ones. We can add `ME` to indicate the position of our IP address :
 `nmap -D IP1,IP2,ME,IP3,RND,RND TARGET`. The RND means that the IP address will be at random.
 
 ---
@@ -147,8 +147,8 @@ The absence of an exact match can be due to : Virtualization, firewall, cloud ne
 ## 📜 Nmap Scripting Engine (NSE)
 
 A script is a piece of code that doesn't need to be compiled.
-For nmap, it enables adding custom functionalities that weren't available via built-in cmds. Nmap default install's contains up to 600 scripts.
-They're in the directory `/usr/share/nmap/scripts` and we can choose to use default scripts zith `--script=default or -sC`.
+For nmap, it enables adding custom functionalities that weren't available via built-in cmds. Nmap default install contains up to 600 scripts.
+They're in the directory `/usr/share/nmap/scripts` and we can choose to use default scripts  with `--script=default or -sC`.
 There are lots of other categories.
 
 | Script Category | Description |
